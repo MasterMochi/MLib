@@ -4,10 +4,10 @@
 #* Copyright (C) 2018 Mochi.                                                  *#
 #******************************************************************************#
 #******************************************************************************#
-#* 定義                                                                       *#
+#* 設定                                                                       *#
 #******************************************************************************#
-# バイナリ名
-LIB_NAME = libMLib.a
+# ライブラリ
+LIB = libMLib.a
 
 # ソースコード
 SRCS = List/ListGet.c    \
@@ -15,20 +15,22 @@ SRCS = List/ListGet.c    \
        List/ListInsert.c \
        List/ListRemove.c
 
-# オブジェクトファイル生成先
-OBJ_DIR = ../build/obj
+# ビルドディレクトリ
+BUILD_DIR = ../build
+# オブジェクトディレクトリ
+OBJ_DIR   = $(BUILD_DIR)/obj
 
 # Cフラグ
-CFLAGS = -O               \
-         -Wall            \
-         -masm=intel      \
-         -m32             \
-         -ffreestanding   \
-         -Iinclude/
+CFLAGS  = -O                 \
+          -Wall              \
+          -masm=intel        \
+          -m32               \
+          -ffreestanding     \
+          -Iinclude/
 
 
 #******************************************************************************#
-#* マクロ                                                                     *#
+#* 定義                                                                       *#
 #******************************************************************************#
 # オブジェクトサブディレクトリ
 OBJ_SUBDIRS = $(sort $(addprefix $(OBJ_DIR)/, $(dir $(SRCS))))
@@ -39,16 +41,19 @@ OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 # 依存関係ファイル
 DEPS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.d))
 
+# インクルードディレクトリ
+CFLAGS  += -I$(BUILD_DIR)/include
+
 
 #******************************************************************************#
 #* phonyターゲット                                                            *#
 #******************************************************************************#
 .PHONY: all
-all: $(OBJ_SUBDIRS) $(OBJS) $(OBJ_DIR)/../$(LIB_NAME) Makefile
+all: $(OBJ_SUBDIRS) $(OBJS) $(OBJ_DIR)/../$(LIB) Makefile
 
 .PHONY: clean
 clean:
-	-rm -rf $(OBJ_DIR)/../$(LIB_NAME) $(OBJ_DIR)
+	-rm -rf $(OBJ_DIR)/../$(LIB) $(OBJ_DIR)
 
 
 #******************************************************************************#
@@ -63,7 +68,7 @@ $(OBJ_SUBDIRS):
 endif
 
 # バイナリ
-$(OBJ_DIR)/../$(LIB_NAME): $(OBJS) Makefile
+$(OBJ_DIR)/../$(LIB): $(OBJS) Makefile
 	$(AR) rcs $@ $(OBJS)
 
 # アセンブラファイルコンパイル

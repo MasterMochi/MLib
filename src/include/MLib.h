@@ -2,6 +2,7 @@
 /* src/include/MLib.h                                                         */
 /*                                                                 2018/12/09 */
 /* Copyright (C) 2017-2018 Mochi                                              */
+/* https://github.com/MasterMochi/MLib.git                                    */
 /******************************************************************************/
 #ifndef _MLIB_H_
 #define _MLIB_H_
