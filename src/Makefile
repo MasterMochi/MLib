@@ -1,7 +1,7 @@
 #******************************************************************************#
 #* src/Makefile                                                               *#
-#*                                                                 2018/12/09 *#
-#* Copyright (C) 2018 Mochi.                                                  *#
+#*                                                                 2019/01/06 *#
+#* Copyright (C) 2018-2019 Mochi.                                             *#
 #******************************************************************************#
 #******************************************************************************#
 #* 設定                                                                       *#
@@ -13,7 +13,10 @@ LIB = libMLib.a
 SRCS = List/ListGet.c    \
        List/ListInit.c   \
        List/ListInsert.c \
-       List/ListRemove.c
+       List/ListRemove.c \
+       Split/SplitGet.c  \
+       Split/SplitInit.c \
+       Split/SplitTerm.c
 
 # ビルドディレクトリ
 BUILD_DIR = ../build
