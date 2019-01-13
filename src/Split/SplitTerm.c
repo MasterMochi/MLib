@@ -32,8 +32,8 @@
  * @retval          MLIB_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibSplitTerm( MLibSplitHandle **ppHandle,
-                         uint32_t        *pErrNo     )
+MLibRet_t MLibSplitTerm( MLibSplitHandle_t **ppHandle,
+                         uint32_t          *pErrNo     )
 {
     /* パラメータ判定 */
     if ( ppHandle == NULL ) {

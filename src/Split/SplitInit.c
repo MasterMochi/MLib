@@ -42,11 +42,11 @@
  * @attention   - 使用済みハンドルは、MLibSplitTerm()を用いて解放すること。
  */
 /******************************************************************************/
-MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle **ppHandle,
-                                    const char      *pStr,
-                                    size_t          length,
-                                    char            delimiter,
-                                    uint32_t        *pErrNo     )
+MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle_t **ppHandle,
+                                    const char        *pStr,
+                                    size_t            length,
+                                    char              delimiter,
+                                    uint32_t          *pErrNo     )
 {
     char     *pSplitStr;    /* 分割文字列             */
     uint32_t idx;           /* 文字列インデックス     */
@@ -88,8 +88,8 @@ MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle **ppHandle,
     }
 
     /* ハンドル生成 */
-    *ppHandle = ( MLibSplitHandle * )
-                malloc( sizeof ( MLibSplitHandle )               +
+    *ppHandle = ( MLibSplitHandle_t * )
+                malloc( sizeof ( MLibSplitHandle_t )             +
                         sizeof ( char * ) * ( delimiterNum + 1 ) +
                         length + delimiterNum + 1                  );
 

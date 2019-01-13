@@ -32,34 +32,34 @@ typedef struct {
     char     **ppStr;   /**< 分割文字列ポインタ配列参照   */
     char     *pStrs;    /**< 分割文字列格納先参照         */
     char     data[];    /**< データ領域                   */
-} MLibSplitHandle;
+} MLibSplitHandle_t;
 
 
 /******************************************************************************/
 /* グローバル関数プロトタイプ宣言                                             */
 /******************************************************************************/
 /* 分割文字列取得 */
-extern MLibRet_t MLibSplitGet( MLibSplitHandle *pHandle,
-                               uint32_t        idx,
-                               char            **ppStr,
-                               uint32_t        *pErrNo   );
+extern MLibRet_t MLibSplitGet( MLibSplitHandle_t *pHandle,
+                               uint32_t          idx,
+                               char              **ppStr,
+                               uint32_t          *pErrNo   );
 /* 次分割文字列取得 */
-extern MLibRet_t MLibSplitGetNext( MLibSplitHandle *pHandle,
-                                   char            **ppStr,
-                                   uint32_t        *pErrNo   );
+extern MLibRet_t MLibSplitGetNext( MLibSplitHandle_t *pHandle,
+                                   char              **ppStr,
+                                   uint32_t          *pErrNo   );
 /* 分割文字列数取得 */
-extern MLibRet_t MLibSplitGetNum( MLibSplitHandle *pHandle,
-                                  size_t          *pNum,
-                                  uint32_t        *pErrNo   );
+extern MLibRet_t MLibSplitGetNum( MLibSplitHandle_t *pHandle,
+                                  size_t            *pNum,
+                                  uint32_t          *pErrNo   );
 /* 文字列分割(区切り文字) */
-extern MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle **ppHandle,
-                                           const char      *pStr,
-                                           size_t          length,
-                                           char            delimiter,
-                                           uint32_t        *pErrNo     );
+extern MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle_t **ppHandle,
+                                           const char        *pStr,
+                                           size_t            length,
+                                           char              delimiter,
+                                           uint32_t          *pErrNo     );
 /* 文字列分割終了処理 */
-extern MLibRet_t MLibSplitTerm( MLibSplitHandle **ppHandle,
-                                uint32_t        *pErrNo     );
+extern MLibRet_t MLibSplitTerm( MLibSplitHandle_t **ppHandle,
+                                uint32_t          *pErrNo     );
 
 
 /******************************************************************************/

@@ -35,10 +35,10 @@
  * @retval      MLIB_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibSplitGet( MLibSplitHandle *pHandle,
-                        uint32_t        idx,
-                        char            **ppStr,
-                        uint32_t        *pErrNo   )
+MLibRet_t MLibSplitGet( MLibSplitHandle_t *pHandle,
+                        uint32_t          idx,
+                        char              **ppStr,
+                        uint32_t          *pErrNo   )
 {
     /* パラメータ判定 */
     if ( ( pHandle == NULL ) ||
@@ -88,9 +88,9 @@ MLibRet_t MLibSplitGet( MLibSplitHandle *pHandle,
  * @retval      MLIB_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibSplitGetNext( MLibSplitHandle *pHandle,
-                            char            **ppStr,
-                            uint32_t        *pErrNo   )
+MLibRet_t MLibSplitGetNext( MLibSplitHandle_t *pHandle,
+                            char              **ppStr,
+                            uint32_t          *pErrNo   )
 {
     /* パラメータ判定 */
     if ( ( pHandle == NULL ) ||
@@ -139,9 +139,9 @@ MLibRet_t MLibSplitGetNext( MLibSplitHandle *pHandle,
  * @retval      MLIB_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibSplitGetNum( MLibSplitHandle *pHandle,
-                           size_t          *pNum,
-                           uint32_t        *pErrNo   )
+MLibRet_t MLibSplitGetNum( MLibSplitHandle_t *pHandle,
+                           size_t            *pNum,
+                           uint32_t          *pErrNo   )
 {
     /* パラメータ判定 */
     if ( ( pHandle == NULL ) ||
