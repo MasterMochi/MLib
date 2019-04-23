@@ -1,35 +1,41 @@
 #******************************************************************************#
+#*                                                                            *#
 #* src/Makefile                                                               *#
-#*                                                                 2019/01/06 *#
+#*                                                                 2019/04/23 *#
 #* Copyright (C) 2018-2019 Mochi.                                             *#
+#*                                                                            *#
 #******************************************************************************#
 #******************************************************************************#
 #* 設定                                                                       *#
 #******************************************************************************#
 # ライブラリ
-LIB = libMLib.a
+LIB = libMLib
 
 # ソースコード
-SRCS = List/ListGet.c    \
-       List/ListInit.c   \
-       List/ListInsert.c \
-       List/ListRemove.c \
-       Split/SplitGet.c  \
-       Split/SplitInit.c \
-       Split/SplitTerm.c
+SRCS  = List/ListGet.c
+SRCS += List/ListInit.c
+SRCS += List/ListInsert.c
+SRCS += List/ListRemove.c
+SRCS += Split/SplitGet.c
+SRCS += Split/SplitInit.c
+SRCS += Split/SplitTerm.c
 
 # ビルドディレクトリ
-BUILD_DIR = ../build
+BUILD_DIR   = ../build
+# リリースディレクトリ
+RELEASE_DIR = $(BUILD_DIR)/release
 # オブジェクトディレクトリ
-OBJ_DIR   = $(BUILD_DIR)/obj
+OBJ_DIR     = $(BUILD_DIR)/obj
 
 # Cフラグ
-CFLAGS  = -O                 \
-          -Wall              \
-          -masm=intel        \
-          -m32               \
-          -ffreestanding     \
-          -Iinclude/
+CFLAGS  = -O
+CFLAGS += -Wall
+CFLAGS += -masm=intel
+CFLAGS += -m32
+CFLAGS += -ffreestanding
+CFLAGS += -Iinclude
+CFLAGS += -I$(RELEASE_DIR)/include
+CFLAGS += -I$(BUILD_DIR)/include
 
 
 #******************************************************************************#
@@ -44,20 +50,17 @@ OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 # 依存関係ファイル
 DEPS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.d))
 
-# インクルードディレクトリ
-CFLAGS  += -I$(BUILD_DIR)/include
-
 
 #******************************************************************************#
 #* phonyターゲット                                                            *#
 #******************************************************************************#
 .PHONY: all
-all: $(OBJ_SUBDIRS) $(OBJS) $(OBJ_DIR)/../$(LIB) Makefile
+all: $(OBJ_SUBDIRS) $(RELEASE_DIR)/$(LIB).a Makefile
 
 .PHONY: clean
 clean:
-	-rm -rf $(OBJ_DIR)/../$(LIB) $(OBJ_DIR)
-
+	-rm -rf $(RELEASE_DIR)/$(LIB).a
+	-rm -rf $(OBJ_DIR)
 
 #******************************************************************************#
 #* 生成規則                                                                   *#
@@ -65,14 +68,16 @@ clean:
 # 依存関係
 -include $(DEPS)
 
-ifdef OBJ_SUBDIRS 
+# オブジェクトサブディレクトリ
+ifdef OBJ_SUBDIRS
 $(OBJ_SUBDIRS):
 	mkdir -p $@
 endif
 
-# バイナリ
-$(OBJ_DIR)/../$(LIB): $(OBJS) Makefile
-	$(AR) rcs $@ $(OBJS)
+# ライブラリ
+$(RELEASE_DIR)/$(LIB).a: $(OBJS) Makefile
+	$(AR) rcs $(OBJ_DIR)/$(LIB).a $(OBJS)
+	ln -srf $(OBJ_DIR)/$(LIB).a $@
 
 # アセンブラファイルコンパイル
 $(OBJ_DIR)/%.o: %.s Makefile
