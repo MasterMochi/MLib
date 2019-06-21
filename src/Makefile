@@ -1,7 +1,7 @@
 #******************************************************************************#
 #*                                                                            *#
 #* src/Makefile                                                               *#
-#*                                                                 2019/04/23 *#
+#*                                                                 2019/06/21 *#
 #* Copyright (C) 2018-2019 Mochi.                                             *#
 #*                                                                            *#
 #******************************************************************************#
@@ -19,6 +19,10 @@ SRCS += List/ListRemove.c
 SRCS += Split/SplitGet.c
 SRCS += Split/SplitInit.c
 SRCS += Split/SplitTerm.c
+SRCS += State/StateInit.c
+SRCS += State/StateExec.c
+SRCS += State/StateGet.c
+SRCS += State/StateSet.c
 
 # ビルドディレクトリ
 BUILD_DIR   = ../build
