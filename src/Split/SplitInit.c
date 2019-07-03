@@ -104,7 +104,7 @@ MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle_t **ppHandle,
     }
 
     /* ハンドル初期化 */
-    ( *ppHandle )->num   = delimiterNum;
+    ( *ppHandle )->num   = delimiterNum + 1;
     ( *ppHandle )->idx   = 0;
     ( *ppHandle )->ppStr = ( char ** ) ( *ppHandle )->data;
     ( *ppHandle )->pStrs = ( *ppHandle )->data +
