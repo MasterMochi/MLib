@@ -1,6 +1,6 @@
 /******************************************************************************/
 /* src/List/ListInsert.c                                                      */
-/*                                                                 2019/01/13 */
+/*                                                                 2019/08/07 */
 /* Copyright (C) 2017-2019 Mochi.                                             */
 /******************************************************************************/
 /******************************************************************************/
@@ -67,6 +67,7 @@ MLibRet_t MLibListInsertHead( MLibList_t     *pList,
     pList->pHead = pNewNode;
 
     /* 挿入ノード設定 */
+    pNewNode->pList = pList;
     pNewNode->pNext = pOldHead;
     pNewNode->pPrev = NULL;
 
@@ -149,6 +150,7 @@ MLibRet_t MLibListInsertNext( MLibList_t     *pList,
     pNode->pNext = pNewNode;
 
     /* 挿入ノード設定 */
+    pNewNode->pList = pList;
     pNewNode->pPrev = pNode;
     pNewNode->pNext = pNextNode;
 
@@ -231,6 +233,7 @@ MLibRet_t MLibListInsertPrev( MLibList_t     *pList,
     pNode->pPrev = pNewNode;
 
     /* 挿入ノード設定 */
+    pNewNode->pList = pList;
     pNewNode->pNext = pNode;
     pNewNode->pPrev = pPrevNode;
 
@@ -304,6 +307,7 @@ MLibRet_t MLibListInsertTail( MLibList_t     *pList,
     pList->pTail = pNewNode;
 
     /* 挿入ノード設定 */
+    pNewNode->pList = pList;
     pNewNode->pNext = NULL;
     pNewNode->pPrev = pOldTail;
 

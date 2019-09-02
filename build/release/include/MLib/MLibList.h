@@ -1,8 +1,10 @@
 /******************************************************************************/
+/*                                                                            */
 /* src/include/MLib/MLibList.h                                                */
-/*                                                                 2019/01/13 */
-/* Copyright (C) 2017-2019 Mochi                                              */
+/*                                                                 2019/08/09 */
+/* Copyright (C) 2017-2019 Mochi.                                             */
 /* https://github.com/MasterMochi/MLib.git                                    */
+/*                                                                            */
 /******************************************************************************/
 #ifndef _MLIB_LIST_H_
 #define _MLIB_LIST_H_
@@ -21,12 +23,13 @@
 /******************************************************************************/
 /** ノード構造体 */
 typedef struct MLibListNode {
-    struct MLibListNode *pNext;     /**< 前ノード */
-    struct MLibListNode *pPrev;     /**< 次ノード */
+    struct MLibList     *pList;     /**< 連結リスト */
+    struct MLibListNode *pNext;     /**< 前ノード   */
+    struct MLibListNode *pPrev;     /**< 次ノード   */
 } MLibListNode_t;
 
 /** 連結リスト構造体 */
-typedef struct {
+typedef struct MLibList {
     MLibListNode_t *pHead;  /**< 先頭ノード             */
     MLibListNode_t *pTail;  /**< 最後尾ノード           */
     size_t         size;    /**< 連結リストのノード個数 */
