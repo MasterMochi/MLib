@@ -1,7 +1,7 @@
 #******************************************************************************#
 #*                                                                            *#
 #* src/Makefile                                                               *#
-#*                                                                 2019/06/21 *#
+#*                                                                 2019/09/25 *#
 #* Copyright (C) 2018-2019 Mochi.                                             *#
 #*                                                                            *#
 #******************************************************************************#
@@ -12,7 +12,14 @@
 LIB = libMLib
 
 # ソースコード
-SRCS  = List/ListGet.c
+SRCS  = DynamicArray/DynamicArrayAlloc.c
+SRCS += DynamicArray/DynamicArrayChunk.c
+SRCS += DynamicArray/DynamicArrayExit.c
+SRCS += DynamicArray/DynamicArrayFree.c
+SRCS += DynamicArray/DynamicArrayGet.c
+SRCS += DynamicArray/DynamicArrayInit.c
+SRCS += DynamicArray/DynamicArraySearch.c
+SRCS += List/ListGet.c
 SRCS += List/ListInit.c
 SRCS += List/ListInsert.c
 SRCS += List/ListRemove.c

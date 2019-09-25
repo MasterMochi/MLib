@@ -106,7 +106,7 @@ MLibListNode_t *MLibListGetPrevNode( MLibList_t     *pList,
         /* 前ノード返却 */
         pRet = pNode->pPrev;
     }
-    
+
     return pRet;
 }
 
