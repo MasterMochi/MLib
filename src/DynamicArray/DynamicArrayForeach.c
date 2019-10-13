@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*                                                                            */
-/* src/DynamicArray/DynamicArraySearch.c                                      */
+/* src/DynamicArray/DynamicArrayForeach.c                                     */
 /*                                                                 2019/10/09 */
 /* Copyright (C) 2019 Mochi.                                                  */
 /*                                                                            */
@@ -10,7 +10,6 @@
 /******************************************************************************/
 /* 標準ヘッダ */
 #include <stdarg.h>
-#include <stdbool.h>
 
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
@@ -23,13 +22,11 @@
 /******************************************************************************/
 /* ローカル関数宣言                                                           */
 /******************************************************************************/
-/* 動的配列エントリ線形検索 */
-static MLibRet_t Search( MLibDynamicArray_t         *pHandle,
-                         uint_t                     *pIdx,
-                         void                       **ppEntry,
-                         MLibErr_t                  *pErr,
-                         MLibDynamicArraySearchCB_t pCallback,
-                         va_list                    vaList      );
+/* 動的配列エントリ全操作 */
+static MLibRet_t Foreach( MLibDynamicArray_t          *pHandle,
+                          MLibErr_t                   *pErr,
+                          MLibDynamicArrayForeachCB_t pCallback,
+                          va_list                     vaList     );
 
 
 /******************************************************************************/
@@ -37,42 +34,40 @@ static MLibRet_t Search( MLibDynamicArray_t         *pHandle,
 /******************************************************************************/
 /******************************************************************************/
 /**
- * @brief       動的配列エントリ線形検索
+ * @brief       動的配列エントリ全操作
  * @details     割当済みの各エントリ毎に引数*pCallbackが指すコールバック関数を
- *              呼び出す。コールバック関数は検索対象のエントリかどうかを判定し
- *              て、最初に検索対象としたエントリを返す。
+ *              呼び出す。
  *
  * @param[in]   *pHandle   動的配列ハンドル
- * @param[out]  *pIdx      エントリインデックス
- * @param[out]  **ppEntry  エントリアドレス
  * @param[out]  *pErr      エラー要因
- *                  - MLIB_ERR_NONE    エラー無し
- *                  - MLIB_ERR_PARAM   パラメータ不正
- *                  - MLIB_ERR_NOENTRY 該当エントリ無し
+ *                  - MLIB_ERR_NONE  エラー無し
+ *                  - MLIB_ERR_PARAM パラメータ不正
  * @param[in]   *pCallback コールバック関数
  * @param[in]   ...        コールバック関数可変長引数
  *
- * @return      検索結果判定
+ * @return      処理結果判定
  * @retval      MLIB_RET_SUCCESS 成功
  * @retval      MLIB_RET_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibDynamicArraySearch( MLibDynamicArray_t         *pHandle,
-                                  uint_t                     *pIdx,
-                                  void                       **ppEntry,
-                                  MLibErr_t                  *pErr,
-                                  MLibDynamicArraySearchCB_t pCallback,
-                                  ...                                   )
+MLibRet_t MLibDynamicArrayForeach( MLibDynamicArray_t          *pHandle,
+                                   MLibErr_t                   *pErr,
+                                   MLibDynamicArrayForeachCB_t pCallback,
+                                   ...                                    )
 {
     va_list   vaList;   /* 可変長引数リスト */
     MLibRet_t retMLib;  /* 戻り値           */
 
+    /* 初期化 */
+    retMLib = MLIB_RET_FAILURE;
+
+    /* エラー要因初期化 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
+
     /* パラメータチェック */
     if ( ( pHandle   == NULL ) ||
-         ( pIdx      == NULL ) ||
-         ( ppEntry   == NULL ) ||
          ( pCallback == NULL )    ) {
-        /* パラメータ不正 */
+        /* 不正 */
 
         /* エラー要因設定 */
         MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
@@ -80,20 +75,11 @@ MLibRet_t MLibDynamicArraySearch( MLibDynamicArray_t         *pHandle,
         return MLIB_RET_FAILURE;
     }
 
-    /* 出力パラメータ初期化 */
-    *ppEntry = NULL;
-    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
-
     /* 可変長引数リスト初期化 */
     va_start( vaList, pCallback );
 
-    /* 検索 */
-    retMLib = Search( pHandle,
-                      pIdx,
-                      ppEntry,
-                      pErr,
-                      pCallback,
-                      vaList     );
+    /* 全操作 */
+    retMLib = Foreach( pHandle, pErr, pCallback, vaList );
 
     /* 可変長引数リスト解放 */
     va_end( vaList );
@@ -107,42 +93,36 @@ MLibRet_t MLibDynamicArraySearch( MLibDynamicArray_t         *pHandle,
 /******************************************************************************/
 /******************************************************************************/
 /**
- * @brief       動的配列エントリ線形検索(内部関数)
- * @details     割当済みの各エントリ毎に引数*pCallbackが指すコールバック関数を
- *              呼び出す。コールバック関数は検索対象のエントリかどうかを判定し
- *              て、最初に検索対象としたエントリを返す。
+ * @brief       動的配列エントリ全操作(内部関数)
+ * @details     割当て済みの各エントリ毎に引数*pCallbackが指すコールバック関数
+ *              呼び出す。
  *
- * @param[in]   *pHandle   動的配列ハンドル
- * @param[out]  *pIdx      エントリインデックス
- * @param[out]  **ppEntry  エントリアドレス
- * @param[in]   *pErr      エラー要因
- *                  - MLIB_ERR_NONE    エラー無し
- *                  - MLIB_ERR_NOENTRY 該当エントリ無し
- * @param[in]   *pCallback コールバック関数
- * @param[in]   vaList     コールバック関数可変長引数リスト
+ * @param[in]   *pHandle    動的配列ハンドル
+ * @param[out]  *pErr       エラー要因
+ *                  - MLIB_ERR_NONE エラー無し
+ * @param[in]   *pCallback  コールバック関数
+ * @param[in]   vaList      コールバック関数可変長引数リスト
  *
- * @return      検索結果判定
+ * @return      処理結果を返す。
  * @retval      MLIB_RET_SUCCESS 成功
- * @retval      MLIB_RET_FAILURE 失敗
  */
 /******************************************************************************/
-static MLibRet_t Search( MLibDynamicArray_t         *pHandle,
-                         uint_t                     *pIdx,
-                         void                       **ppEntry,
-                         MLibErr_t                  *pErr,
-                         MLibDynamicArraySearchCB_t pCallback,
-                         va_list                    vaList      )
+static MLibRet_t Foreach( MLibDynamicArray_t          *pHandle,
+                          MLibErr_t                   *pErr,
+                          MLibDynamicArrayForeachCB_t pCallback,
+                          va_list                     vaList     )
 {
-    bool         ret;           /* 条件判定結果           */
     uint_t       localIdx;      /* チャンク内インデックス */
     Chunk_t      *pChunk;       /* チャンク               */
     ChunkEntry_t *pChunkEntry;  /* チャンクエントリ       */
 
     /* 初期化 */
-    ret         = false;
     localIdx    = 0;
     pChunk      = NULL;
     pChunkEntry = NULL;
+
+    /* エラー要因初期化 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
 
     /* チャンク毎に繰り返す */
     while ( true ) {
@@ -154,11 +134,7 @@ static MLibRet_t Search( MLibDynamicArray_t         *pHandle,
         /* 取得結果判定 */
         if ( pChunk == NULL ) {
             /* チャンク無し */
-
-            /* エラー要因設定 */
-            MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NOENTRY );
-
-            return MLIB_RET_FAILURE;
+            break;
         }
 
         /* チャンク内エントリ毎に繰り返す */
@@ -175,22 +151,13 @@ static MLibRet_t Search( MLibDynamicArray_t         *pHandle,
             }
 
             /* コールバック呼出し */
-            ret = ( pCallback )( pChunkEntry->idx,
-                                 pChunkEntry->pData,
-                                 vaList              );
-
-            /* 呼出し結果判定 */
-            if ( ret != false ) {
-                /* 検索対象 */
-
-                /* 出力パラメータ設定 */
-                *pIdx    = pChunkEntry->idx;
-                *ppEntry = pChunkEntry->pData;
-
-                return MLIB_RET_SUCCESS;
-            }
+            ( pCallback )( pChunkEntry->idx,
+                           pChunkEntry->pData,
+                           vaList              );
         }
     }
+
+    return MLIB_RET_SUCCESS;
 }
 
 

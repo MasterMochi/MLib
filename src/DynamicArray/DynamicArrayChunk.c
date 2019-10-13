@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/DynamicArray/DynamicArrayChunk.c                                       */
-/*                                                                 2019/09/24 */
+/*                                                                 2019/10/09 */
 /* Copyright (C) 2019 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -42,19 +42,21 @@
 Chunk_t *ChunkAdd( MLibDynamicArray_t *pHandle,
                    MLibErr_t          *pErr     )
 {
-    size_t  size;       /* エントリサイズ         */
-    uint_t  idx;        /* 動的配列インデックス   */
-    uint_t  localIdx;   /* チャンク内インデックス */
-    Chunk_t *pLast;     /* 最後尾チャンク         */
-    Chunk_t *pChunk;    /* 追加チャンク           */
+    size_t       size;          /* エントリサイズ         */
+    uint_t       idx;           /* 動的配列インデックス   */
+    uint_t       localIdx;      /* チャンク内インデックス */
+    Chunk_t      *pLast;        /* 最後尾チャンク         */
+    Chunk_t      *pChunk;       /* 追加チャンク           */
+    ChunkEntry_t *pChunkEntry;  /* チャンクエントリ       */
 
     /* 初期化 */
-    size   = sizeof ( ChunkEntry_t ) +
-             pHandle->chunkSize *
-             ( sizeof ( ChunkEntry_t ) + pHandle->entrySize );
-    idx    = 0;
-    pLast  = NULL;
-    pChunk = NULL;
+    size        = sizeof ( ChunkEntry_t ) +
+                  pHandle->chunkSize *
+                  ( sizeof ( ChunkEntry_t ) + pHandle->entrySize );
+    idx         = 0;
+    pLast       = NULL;
+    pChunk      = NULL;
+    pChunkEntry = NULL;
 
     /* エラー要因初期化 */
     MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
@@ -72,8 +74,13 @@ Chunk_t *ChunkAdd( MLibDynamicArray_t *pHandle,
     } else {
         /* チャンク有り */
 
+        /* 最後尾チャンクエントリアドレス取得 */
+        pChunkEntry = CHUNK_ENTRY_ADDR( pHandle,
+                                        pLast->entry,
+                                        pHandle->chunkSize - 1 );
+
         /* 最後尾インデックス取得 */
-        idx = pLast->entry[ pHandle->chunkSize - 1 ].idx + 1;
+        idx = pChunkEntry->idx + 1;
     }
 
     /* チャンク割当 */
@@ -96,9 +103,12 @@ Chunk_t *ChunkAdd( MLibDynamicArray_t *pHandle,
     for ( localIdx = 0;
           localIdx < pHandle->chunkSize;
           localIdx++                     ) {
+        /* チャンクエントリアドレス取得 */
+        pChunkEntry = CHUNK_ENTRY_ADDR( pHandle, pChunk->entry, localIdx );
+
         /* エントリ情報初期化 */
-        pChunk->entry[ localIdx ].idx  = idx;
-        pChunk->entry[ localIdx ].used = false;
+        pChunkEntry->idx  = idx + localIdx;
+        pChunkEntry->used = false;
     }
 
     /* チャンク追加 */

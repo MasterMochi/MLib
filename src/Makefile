@@ -1,7 +1,7 @@
 #******************************************************************************#
 #*                                                                            *#
 #* src/Makefile                                                               *#
-#*                                                                 2019/09/25 *#
+#*                                                                 2019/10/07 *#
 #* Copyright (C) 2018-2019 Mochi.                                             *#
 #*                                                                            *#
 #******************************************************************************#
@@ -15,6 +15,7 @@ LIB = libMLib
 SRCS  = DynamicArray/DynamicArrayAlloc.c
 SRCS += DynamicArray/DynamicArrayChunk.c
 SRCS += DynamicArray/DynamicArrayExit.c
+SRCS += DynamicArray/DynamicArrayForeach.c
 SRCS += DynamicArray/DynamicArrayFree.c
 SRCS += DynamicArray/DynamicArrayGet.c
 SRCS += DynamicArray/DynamicArrayInit.c

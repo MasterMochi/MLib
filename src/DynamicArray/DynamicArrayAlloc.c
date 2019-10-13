@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/DynamicArray/DynamicArrayAlloc.c                                       */
-/*                                                                 2019/09/24 */
+/*                                                                 2019/10/09 */
 /* Copyright (C) 2019 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -47,12 +47,14 @@ MLibRet_t MLibDynamicArrayAlloc( MLibDynamicArray_t *pHandle,
                                  void               **ppEntry,
                                  MLibErr_t          *pErr      )
 {
-    uint_t  localIdx;   /* チャンク内インデックス */
-    Chunk_t *pChunk;    /* チャンク               */
+    uint_t       localIdx;      /* チャンク内インデックス */
+    Chunk_t      *pChunk;       /* チャンク               */
+    ChunkEntry_t *pChunkEntry;  /* チャンクエントリ       */
 
     /* 初期化 */
-    localIdx = 0;
-    pChunk   = NULL;
+    localIdx    = 0;
+    pChunk      = NULL;
+    pChunkEntry = NULL;
 
     /* エラー要因初期化 */
     MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
@@ -104,17 +106,20 @@ MLibRet_t MLibDynamicArrayAlloc( MLibDynamicArray_t *pHandle,
         for ( localIdx = 0;
               localIdx < pHandle->chunkSize;
               localIdx++                     ) {
+            /* チャンクエントリアドレス取得 */
+            pChunkEntry = CHUNK_ENTRY_ADDR( pHandle, pChunk->entry, localIdx );
+
             /* 未使用判定 */
-            if ( pChunk->entry[ localIdx ].used == false ) {
+            if ( pChunkEntry->used == false ) {
                 /* 未使用 */
 
                 /* 割当設定 */
                 pHandle->entryNum++;
-                pChunk->entry[ localIdx ].used = true;
+                pChunkEntry->used = true;
 
                 /* 出力パラメータ設定 */
-                *pIdx    = pChunk->entry[ localIdx ].idx;
-                *ppEntry = pChunk->entry[ localIdx ].pData;
+                *pIdx    = pChunkEntry->idx;
+                *ppEntry = pChunkEntry->pData;
 
                 return MLIB_RET_SUCCESS;
             }
