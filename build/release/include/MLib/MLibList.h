@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLibList.h                                                */
-/*                                                                 2019/08/09 */
+/*                                                                 2019/11/18 */
 /* Copyright (C) 2017-2019 Mochi.                                             */
 /* https://github.com/MasterMochi/MLib.git                                    */
 /*                                                                            */
@@ -12,6 +12,7 @@
 /* インクルード                                                               */
 /******************************************************************************/
 /* 標準ヘッダ */
+#include <stdbool.h>
 #include <stddef.h>
 
 /* ライブラリヘッダ */
@@ -21,6 +22,10 @@
 /******************************************************************************/
 /* 定義                                                                       */
 /******************************************************************************/
+/* 連結リスト線形検索処理方式 */
+#define MLIB_LIST_GET    ( 0 )  /**< ノード取得 */
+#define MLIB_LIST_REMOVE ( 1 )  /**< ノード削除 */
+
 /** ノード構造体 */
 typedef struct MLibListNode {
     struct MLibList     *pList;     /**< 連結リスト */
@@ -34,6 +39,13 @@ typedef struct MLibList {
     MLibListNode_t *pTail;  /**< 最後尾ノード           */
     size_t         size;    /**< 連結リストのノード個数 */
 } MLibList_t;
+
+/** 連結リスト線形検索コールバック関数型 */
+typedef bool ( *MLibListSearchCB_t )( MLibListNode_t *pNode,
+                                      void           *pParam );
+
+/** 連結リスト線形検索処理方式 */
+typedef uint32_t MLibListSearchMethod_t;
 
 
 /******************************************************************************/
@@ -77,6 +89,12 @@ extern MLibListNode_t *MLibListRemoveHead( MLibList_t *pList );
 
 /* 最後尾ノード削除 */
 extern MLibListNode_t *MLibListRemoveTail( MLibList_t *pList );
+
+/* 連結リスト線形検索 */
+extern MLibListNode_t *MLibListSearchHead( MLibList_t             *pList,
+                                           MLibListSearchCB_t     pCallback,
+                                           void                   *pParam,
+                                           MLibListSearchMethod_t method     );
 
 
 /******************************************************************************/
