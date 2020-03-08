@@ -1,8 +1,8 @@
 #******************************************************************************#
 #*                                                                            *#
 #* src/Makefile                                                               *#
-#*                                                                 2019/11/18 *#
-#* Copyright (C) 2018-2019 Mochi.                                             *#
+#*                                                                 2020/03/02 *#
+#* Copyright (C) 2018-2020 Mochi.                                             *#
 #*                                                                            *#
 #******************************************************************************#
 #******************************************************************************#
@@ -25,6 +25,10 @@ SRCS += List/ListInit.c
 SRCS += List/ListInsert.c
 SRCS += List/ListRemove.c
 SRCS += List/ListSearch.c
+SRCS += RingBuffer/RingBufferExit.c
+SRCS += RingBuffer/RingBufferInit.c
+SRCS += RingBuffer/RingBufferPop.c
+SRCS += RingBuffer/RingBufferPush.c
 SRCS += Split/SplitGet.c
 SRCS += Split/SplitInit.c
 SRCS += Split/SplitTerm.c

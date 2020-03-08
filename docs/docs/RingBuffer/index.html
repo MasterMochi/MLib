@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"><!-- IE互換モード回避 -->
+        <meta name="author" content="Mochi">
+        <meta name="viewport" content="width=device-width,initial-scale=1"><!-- レスポンシブデザイン -->
+        <meta name="description" content="C言語ライブラリです。C言語プログラミングをもっと楽に。">
+        <meta name="format-detection" content="email=no,telephone=no,address=no">
+        <meta property="og:url" content="https://MasterMochi.github.io/MLib/">
+        <meta property="og:title" content="MLib">
+        <meta property="og:type" content="website">
+        <meta property="og:description" content="C言語ライブラリです。C言語プログラミングをもっと楽に。">
+        <!-- <meta property="og:image" content=""> -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@master_mochi">
+        <!-- <meta name="msapplication-TileImage" content="" --><!-- MSWIN8～ピン留め対応 -->
+        <meta name="msapplication-TitleColor" content="#424242"><!-- MSWIN8～ピン留め対応 -->
+        <link rel="stylesheet" href="../../style.css">
+        <link rel="canonical" href="https://MasterMochi.github.io/MLib/">
+        <!-- <link rel="icon" href="" sizes="16x16" type="image/png"> -->
+        <!-- <link rel="icon" href="" sizes="32x32" type="image/png"> -->
+        <!-- <link rel="icon" href="" sizes="48x48" type="image/png"> -->
+        <!-- <link rel="icon" href="" sizes="62x62" type="image/png"> -->
+        <link href="https://fonts.googleapis.com/css?family=Cutive+Mono" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Sawarabi+Mincho" rel="stylesheet">
+        <link href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" rel="stylesheet" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+        <title>MLib - Documentation</title>
+    </head>
+    <body>
+        <a name="top"></a>
+        <div id="header">
+            <div id="menu">
+                <a href="../../index.html"><div id="logo">MLib</div></a>
+                <a href="../index.html"><div>Docs</div></a>
+            </div>
+        </div>
+        <div id="crumb">
+            <ol itemscope itemtype="http://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    <a itemprop="item" href="../../index.html"><span itemprop="name">Home</span></a>
+                    <meta itemprop="position" content="1">
+                </li>
+                <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    <a itemprop="item" href="../index.html"><span itemprop="name">Docs</span></a>
+                    <meta itemprop="position" content="2">
+                </li>
+                <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    <a itemprop="item" href="./index.html"><span itemprop="name">リングバッファ</span></a>
+                    <meta itemprop="position" content="2">
+                </li>
+            </ol>
+        </div>
+        <div id="content">
+            <div>
+                <h1>リングバッファ</h1>
+                <ul>
+                    <li><a href="#概要">概要</a>
+                    <li><a href="#構成">構成</a>
+                    <li><a href="#ハンドル初期化">ハンドル初期化: MLibRingBufferInit()</a>
+                    <li><a href="#ハンドル削除">ハンドル削除: MLibRingBufferDelete()</a>
+                    <li><a href="#バッファ追加">バッファ追加: MLibRingBufferPush()</a>
+                    <li><a href="#バッファ取出">バッファ取出: MLibRingBufferPop()</a>
+                </ul>
+            </div>
+            <div>
+                <h1><a name="概要">概要</a></h1>
+                <p>
+                    リングバッファは書き込みインデックスと読み込みインデックスがバッファ内でループするバッファである。
+                </p>
+                <p>
+                    本ライブラリは、バッファのエントリサイズとエントリ数を指定してリングバッファを作成し、バッファにデータを追加および取り出す事が出来る。
+                    バッファへのデータ書き込み時に書込み先インデックスが読込み先インデックスに追いついた場合、最古のバッファデータは破棄しデータを書き込む。
+                </p>
+            </div>
+            <div>
+                <h1><a name="構成">構成</a></h1>
+                <p>リングバッファはC標準ライブラリ上で機能します。</p>
+            </div>
+            <div>
+                <h1><a name="ハンドル初期化">ハンドル初期化</a></h1>
+                <table>
+                    <tr>
+                        <td class="title">説明</td>
+                        <td colspan="3">
+                            リングバッファのハンドルを作成し、リングバッファを初期化する。<br>
+                            作成したハンドルは解放するまでデータの追加や取り出しなどリングバッファの操作の為に必要となる。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">定義</td>
+                        <td colspan="3">
+                            <pre>#include &lt;MLib/MLib.h&gt;</pre>
+                            <br>
+                            <pre>extern MLibRet_t MLibRingBufferInit( MLibRingBuffer_t *pHandle,</pre>
+                            <pre>                                     size_t           entrySize,</pre>
+                            <pre>                                     size_t           entryNum,</pre>
+                            <pre>                                     MLibErr_t        *pErr      );</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">戻り値</td>
+                        <td colspan="3">
+                            リングバッファハンドルの作成結果を返す。
+                            <table>
+                                <tr><td class="title">MLIB_RET_SUCCESS</td><td>成功</td></tr>
+                                <tr><td class="title">MLIB_RET_FAILURE</td><td>失敗</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title" rowspan="4">引数</td>
+                        <td>*pHandle</td>
+                        <td>out</td>
+                        <td>リングバッファハンドル</td>
+                    </tr>
+                    <tr>
+                        <td>entrySize</td>
+                        <td>in</td>
+                        <td>リングバッファのエントリサイズ</td>
+                    </tr>
+                    <tr>
+                        <td>entryNum</td>
+                        <td>in</td>
+                        <td>リングバッファのエントリ数</td>
+                    </tr>
+                    <tr>
+                        <td>*pErr</td>
+                        <td>out</td>
+                        <td>
+                            エラー要因。不要の場合はNULLを指定する。
+                            <table>
+                                <tr><td class="title">MLIB_ERR_NONE</td><td>エラー無し</td></tr>
+                                <tr><td class="title">MLIB_ERR_NO_MEMORY</td><td>メモリー不足</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">使用例</td>
+                        <td colspan="3">
+                            <pre>MLibRet_t        retMLib;      /* 戻り値         */</pre>
+                            <pre>MLibErr_t        errMLib;      /* エラー         */</pre>
+                            <pre>MLibRingBuffer_t ringBuffer;   /* リングバッファ */</pre>
+                            <br>
+                            <pre>/* 初期化 */</pre>
+                            <pre>retMLib = MLIB_RET_FAILURE;</pre>
+                            <pre>errMLib = MLIB_ERR_NONE;</pre>
+                            <br>
+                            <pre>/* リングバッファ初期化 */</pre>
+                            <pre>retMLib = MLibRingBufferInit( &ringBuffer,</pre>
+                            <pre>                              sizeof ( char ),</pre>
+                            <pre>                              256,</pre>
+                            <pre>                              &errMLib         );</pre>
+                            <br>
+                            <pre>/* 初期化結果判定 */</pre>
+                            <pre>if ( retMLib != MLIB_RET_SUCCESS ) {</pre>
+                            <pre>   /* 失敗 */</pre>
+                            <br>
+                            <pre>   /* ここでerrMLib値からエラー要因を特定 */</pre>
+                            <pre>}</pre>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="totop"><a href="#top">▲上へ</a></div>
+            <div>
+                <h1><a name="ハンドル削除">ハンドル削除</a></h1>
+                <table>
+                    <tr>
+                        <td class="title">説明</td>
+                        <td colspan="3">
+                            リングバッファを解放してハンドルの使用を終了する。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">定義</td>
+                        <td colspan="3">
+                            <pre>#include &lt;MLib/MLib.h&gt;</pre>
+                            <br>
+                            <pre>extern MLibRet_t MLibRingBufferExit( MLibRingBuffer_t *pHandle,</pre>
+                            <pre>                                     MLibErr_t        *pErr     );</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">戻り値</td>
+                        <td colspan="3">
+                            リングバッファハンドルの削除結果を返す。
+                            <table>
+                                <tr><td class="title">MLIB_RET_SUCCESS</td><td>成功</td></tr>
+                                <tr><td class="title">MLIB_RET_FAILURE</td><td>失敗</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title" rowspan="2">引数</td>
+                        <td>*pHandle</td>
+                        <td>in</td>
+                        <td>リングバッファハンドル</td>
+                    </tr>
+                    <tr>
+                        <td>*pErr</td>
+                        <td>out</td>
+                        <td>
+                            エラー要因。不要の場合はNULLを指定する。
+                            <table>
+                                <tr><td class="title">MLIB_ERR_NONE</td><td>エラー無し</td></tr>
+                                <tr><td class="title">MLIB_ERR_PARAM</td><td>パラメータ不正</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">使用例</td>
+                        <td colspan="3">
+                            <pre>MLibRingBuffer_t ringBuffer;   /* リングバッファ */</pre>
+                            <br>
+                            <pre>/* ここでリングバッファハンドルを作成 */</pre>
+                            <br>
+                            <pre>/* リングバッファ削除(戻り値未使用) */</pre>
+                            <pre>MLibRingBufferDelete( &ringBuffer, NULL );</pre>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="totop"><a href="#top">▲上へ</a></div>
+            <div>
+                <h1><a name="バッファ追加">バッファ追加</a></h1>
+                <table>
+                    <tr>
+                        <td class="title">説明</td>
+                        <td colspan="3">
+                            リングバッファにデータを追加する。
+                            追加先がラップし、バッファが未だ取り出されていない場合は、上書きする。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">定義</td>
+                        <td colspan="3">
+                            <pre>#include &lt;MLib/MLib.h&gt;</pre>
+                            <br>
+                            <pre>extern MLibRet_t MLibRingBufferAdd( MLibRingBuffer_t *pHandle,</pre>
+                            <pre>                                    void             *pData,</pre>
+                            <pre>                                    MLibErr_t        *pErr     );</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">戻り値</td>
+                        <td colspan="3">
+                            リングバッファにデータを追加した結果を返す。
+                            <table>
+                                <tr><td class="title">MLIB_RET_SUCCESS</td><td>成功</td></tr>
+                                <tr><td class="title">MLIB_RET_FAILURE</td><td>失敗</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title" rowspan="3">引数</td>
+                        <td>*pHandle</td>
+                        <td>in</td>
+                        <td>リングバッファハンドル</td>
+                    </tr>
+                    <tr>
+                        <td>*pData</td>
+                        <td>in</td>
+                        <td>データ</td>
+                    </tr>
+                    <tr>
+                        <td>*pErr</td>
+                        <td>out</td>
+                        <td>
+                            エラー要因。不要の場合はNULLを指定する。
+                            <table>
+                                <tr><td class="title">MLIB_ERR_NONE</td><td>エラー無し</td></tr>
+                                <tr><td class="title">MLIB_ERR_PARAM</td><td>パラメータ不正</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">使用例</td>
+                        <td colspan="3">
+                            <pre>char             data;         /* データ         */</pre>
+                            <pre>MLibRet_t        retMLib;      /* 戻り値         */</pre>
+                            <pre>MLibErr_t        errMLib;      /* エラー         */</pre>
+                            <pre>MLibRingBuffer_t ringBuffer;   /* リングバッファ */</pre>
+                            <br>
+                            <pre>/* 初期化 */</pre>
+                            <pre>data    = 'a';</pre>
+                            <pre>retMLib = MLIB_RET_FAILURE;</pre>
+                            <pre>errMLib = MLIB_ERR_NONE;</pre>
+                            <br>
+                            <pre>/* ここでリングバッファハンドルを作成 */</pre>
+                            <br>
+                            <pre>/* バッファ追加 */</pre>
+                            <pre>retMLib = MLibRingBufferPush( &ringBuffer,</pre>
+                            <pre>                              &data,</pre>
+                            <pre>                              &errMLib     );</pre>
+                            <br>
+                            <pre>/* 追加結果判定 */</pre>
+                            <pre>if ( retMLib != MLIB_RET_SUCCESS ) {</pre>
+                            <pre>    /* 失敗 */</pre>
+                            <br>
+                            <pre>    /* ここでerrMLib値からエラー要因を特定 */</pre>
+                            <pre>}</pre>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="totop"><a href="#top">▲上へ</a></div>
+            <div>
+                <h1><a name="バッファ取出">バッファ取出</a></h1>
+                <table>
+                    <tr>
+                        <td class="title">説明</td>
+                        <td colspan="3">
+                            リングバッファからデータを取り出す。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">定義</td>
+                        <td colspan="3">
+                            <pre>#include &lt;MLib/MLib.h&gt;</pre>
+                            <br>
+                            <pre>extern MLibRet_t MLibRingBufferPop( MLibRingBuffer_t *pHandle,</pre>
+                            <pre>                                    void             *pData,</pre>
+                            <pre>                                    MLibErr_t        *pErr     );</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">戻り値</td>
+                        <td colspan="3">
+                            リングバッファからのデータ取り出し結果を返す。
+                            <table>
+                                <tr><td class="title">MLIB_RET_SUCCESS</td><td>成功</td></tr>
+                                <tr><td class="title">MLIB_RET_FAILURE</td><td>失敗</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title" rowspan="3">引数</td>
+                        <td>*pHandle</td>
+                        <td>in</td>
+                        <td>リングバッファハンドル</td>
+                    </tr>
+                    <tr>
+                        <td>*pData</td>
+                        <td>out</td>
+                        <td>データ</td>
+                    </tr>
+                    <tr>
+                        <td>*pErr</td>
+                        <td>out</td>
+                        <td>
+                            エラー要因。不要の場合はNULLを指定する。
+                            <table>
+                                <tr><td class="title">MLIB_ERR_NONE</td><td>エラー無し</td></tr>
+                                <tr><td class="title">MLIB_ERR_PARAM</td><td>パラメータ不正</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">使用例</td>
+                        <td colspan="3">
+                            <pre>char             data;         /* データ         */</pre>
+                            <pre>MLibRet_t        retMLib;      /* 戻り値         */</pre>
+                            <pre>MLibErr_t        errMLib;      /* エラー要因     */</pre>
+                            <pre>MLibRingBuffer_t ringBuffer;   /* リングバッファ */</pre>
+                            <br>
+                            <pre>/* 初期化 */</pre>
+                            <pre>data    = 0;</pre>
+                            <pre>retMLib = MLIB_RET_FAILURE;</pre>
+                            <pre>errMLib = MLIB_ERR_NONE;</pre>
+                            <br>
+                            <pre>/* ここでリングバッファハンドルを生成 */</pre>
+                            <br>
+                            <pre>/* ここでリングバッファにデータを追加 */</pre>
+                            <br>
+                            <pre>/* データ取り出し */</pre>
+                            <pre>retMLib = MLibRingBufferPop( &ringBuffer,</pre>
+                            <pre>                             &data,</pre>
+                            <pre>                             &errMLib     );</pre>
+                            <br>
+                            <pre>/* 取り出し結果判定 */</pre>
+                            <pre>if ( retMLib != MLIB_RET_SUCCESS ) {</pre>
+                            <pre>    /* 失敗 */</pre>
+                            <br>
+                            <pre>    /* ここでerrMLib値からエラー要因を特定 */</pre>
+                            <pre>}</pre>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="totop"><a href="#top">▲上へ</a></div>
+        </div>
+        <div id="footer">
+            <div id="copyright">
+                Copyright &copy 2020 Mochi. All rights reserved.
+            </div>
+        </div>
+    </body>
+</html>
