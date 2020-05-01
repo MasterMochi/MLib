@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferInit.c                                            */
-/*                                                                 2020/03/02 */
+/*                                                                 2020/05/01 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -64,6 +64,7 @@ MLibRet_t MLibRingBufferInit( MLibRingBuffer_t *pHandle,
     pHandle->entrySize  = entrySize;
     pHandle->entryNum   = entryNum;
     pHandle->bufferSize = entrySize * entryNum;
+    pHandle->num        = 0;
     pHandle->pushIdx    = 0;
     pHandle->popIdx     = 0;
     pHandle->pBuffer    = malloc( pHandle->bufferSize );

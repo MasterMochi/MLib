@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferPop.c                                             */
-/*                                                                 2020/03/02 */
+/*                                                                 2020/05/01 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -88,6 +88,9 @@ MLibRet_t MLibRingBufferPop( MLibRingBuffer_t *pHandle,
 
         pHandle->popIdx = 0;
     }
+
+    /* データ数更新 */
+    pHandle->num--;
 
     return MLIB_RET_SUCCESS;
 }

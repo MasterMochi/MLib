@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferPush.c                                            */
-/*                                                                 2020/03/02 */
+/*                                                                 2020/05/01 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -88,6 +88,14 @@ MLibRet_t MLibRingBufferPush( MLibRingBuffer_t *pHandle,
         /* ラップ */
 
         pHandle->popIdx = 0;
+    }
+
+    /* データ数上限判定 */
+    if ( pHandle->num < pHandle->entryNum ) {
+        /* 非上限 */
+
+        /* データ数更新 */
+        pHandle->num++;
     }
 
     return MLIB_RET_SUCCESS;
