@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* MLib/MLibRingBuffer.h                                                      */
-/*                                                                 2020/05/01 */
+/*                                                                 2020/05/09 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -70,7 +70,7 @@ extern MLibRet_t MLibRingBufferPush( MLibRingBuffer_t *pHandle,
  * @return      データ数を返す。
  */
 /******************************************************************************/
-inline size_t MLibRingBufferGetNum( MLibRingBuffer_t *pHandle )
+static inline size_t MLibRingBufferGetNum( MLibRingBuffer_t *pHandle )
 {
     /* パラメータ判定 */
     if ( pHandle == NULL ) {
