@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/DynamicArray/DynamicArrayChunk.h                                       */
-/*                                                                 2019/10/09 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/05/13 */
+/* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
 #ifndef DYNAMICARRAY_CHUNK_H
@@ -22,10 +22,10 @@
 /* 定義                                                                       */
 /******************************************************************************/
 /** エントリアドレス計算マクロ */
-#define CHUNK_ENTRY_ADDR( _P_HDL, _P_TOP, _IDX )            \
-    ( ChunkEntry_t * )                                      \
-    ( ( ( uint8_t * ) ( _P_TOP ) ) +                        \
-      ( sizeof ( ChunkEntry_t ) + ( _P_HDL )->entrySize ) )
+#define CHUNK_ENTRY_ADDR( _P_HDL, _P_TOP, _IDX )                   \
+    ( ChunkEntry_t * )                                             \
+    ( ( ( uint8_t * ) ( _P_TOP ) ) +                               \
+      ( sizeof ( ChunkEntry_t ) + ( _P_HDL )->entrySize ) * _IDX )
 
 /** チャンクエントリ */
 typedef struct {
