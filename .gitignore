@@ -1,5 +1,6 @@
 build/obj/
 build/release/libMlib.a
+build/test/
 doxygen/output
 doxygen/log
 tags
