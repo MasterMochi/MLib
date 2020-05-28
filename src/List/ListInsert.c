@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/List/ListInsert.c                                                      */
-/*                                                                 2019/12/03 */
-/* Copyright (C) 2017-2019 Mochi.                                             */
+/*                                                                 2020/05/28 */
+/* Copyright (C) 2017-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -117,15 +117,15 @@ MLibRet_t MLibListInsertNext( MLibList_t     *pList,
     /* 初期化 */
     pNextNode = NULL;
 
-    /* 引数pListチェック */
-    if ( pList == NULL ) {
-        /* 不正値 */
+    /* 先頭指定チェック */
+    if ( pNode == NULL ) {
+        /* 先頭指定 */
 
-        return MLIB_FAILURE;
+        return MLibListInsertHead( pList, pNewNode );
     }
 
-    /* 引数pNodeチェック */
-    if ( pNode == NULL ) {
+    /* 引数pListチェック */
+    if ( pList == NULL ) {
         /* 不正値 */
 
         return MLIB_FAILURE;
@@ -200,15 +200,15 @@ MLibRet_t MLibListInsertPrev( MLibList_t     *pList,
     /* 初期化 */
     pPrevNode = NULL;
 
-    /* 引数pListチェック */
-    if ( pList == NULL ) {
-        /* 不正値 */
+    /* 最後尾指定チェック */
+    if ( pNode == NULL ) {
+        /* 最後尾指定 */
 
-        return MLIB_FAILURE;
+        return MLibListInsertTail( pList, pNewNode );
     }
 
-    /* 引数pNodeチェック */
-    if ( pNode == NULL ) {
+    /* 引数pListチェック */
+    if ( pList == NULL ) {
         /* 不正値 */
 
         return MLIB_FAILURE;
