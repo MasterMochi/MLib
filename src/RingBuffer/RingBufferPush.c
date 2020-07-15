@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferPush.c                                            */
-/*                                                                 2020/05/01 */
+/*                                                                 2020/07/15 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -9,6 +9,7 @@
 /* インクルード                                                               */
 /******************************************************************************/
 /* 標準ヘッダ */
+#include <stddef.h>
 #include <string.h>
 
 /* ライブラリヘッダ */
@@ -16,22 +17,30 @@
 
 
 /******************************************************************************/
+/* ローカル関数宣言                                                           */
+/******************************************************************************/
+/* リングバッファ追加(内部関数) */
+static void Push( MLibRingBuffer_t *pHandle,
+                  const void       *pData    );
+
+
+/******************************************************************************/
 /* グローバル関数定義                                                         */
 /******************************************************************************/
 /******************************************************************************/
 /**
- * @brief       リングバッファ追加
- * @details     リングバッファにデータを追加する。追加先インデックスがラップし、
- *              そのインデックスが指すバッファが未だ取り出されていない場合は、
- *              データを上書きする。
+ * @brief       リングバッファ追加(上書き禁止)
+ * @details     リングバッファにデータを追加する。追加されているデータ数が上限
+ *              に達している場合は、データを追加せずに失敗を返す。
  *
- * @param[in]   *pHandle リングバッファのハンドル
+ * @param[in]   *pHandle リングバッファハンドル
  * @param[in]   *pData   追加するデータ
- * @param[out]  *pErr    エラー要因
+ * @param[in]   *pErr    エラー要因
  *                  - MLIB_ERR_NONE  エラー無し
  *                  - MLIB_ERR_PARAM パラメータ不正
+ *                  - MLIB_ERR_FULL  バッファフル
  *
- * @return      リングバッファにデータを追加した結果を返す。
+ * @return      データ追加結果を返す。
  * @retval      MLIB_RET_SUCCESS 成功
  * @retval      MLIB_RET_FAILURE 失敗
  */
@@ -40,11 +49,6 @@ MLibRet_t MLibRingBufferPush( MLibRingBuffer_t *pHandle,
                               const void       *pData,
                               MLibErr_t        *pErr     )
 {
-    char *pAddr;
-
-    /* 初期化 */
-    pAddr = NULL;
-
     /* エラー要因初期化 */
     MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
 
@@ -59,46 +63,127 @@ MLibRet_t MLibRingBufferPush( MLibRingBuffer_t *pHandle,
         return MLIB_RET_FAILURE;
     }
 
-    /* バッファアドレス算出 */
+    /* バッファフル判定 */
+    if ( ( ( pHandle->pushIdx + 1 ) == pHandle->popIdx ) ||
+         ( ( pHandle->pushIdx == pHandle->entryNum ) &&
+           ( pHandle->popIdx  == 0                 )    )   ) {
+        /* バッファフル */
+
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_FULL );
+
+        return MLIB_RET_FAILURE;
+    }
+
+    /* リングバッファ追加 */
+    Push( pHandle, pData );
+
+    return MLIB_RET_SUCCESS;
+}
+
+
+/******************************************************************************/
+/**
+ * @brief       リングバッファ追加(上書き許可)
+ * @details     リングバッファにデータを追加する。追加されているデータ数が上限
+ *              に達していた場合は、最古のデータを破棄してデータを追加する。
+ *
+ * @param[in]   *pHandle リングバッファハンドル
+ * @param[in]   *pData   追加するデータ
+ * @param[out]  *pErr    エラー要因
+ *                  - MLIB_ERR_NONE  エラー無し
+ *                  - MLIB_ERR_PARAM パラメータ不正
+ *
+ * @return      データ追加結果を返す。
+ * @retval      MLIB_RET_SUCCESS 成功
+ * @retval      MLIB_RET_FAILURE 失敗
+ */
+/******************************************************************************/
+MLibRet_t MLibRingBufferPushOW( MLibRingBuffer_t *pHandle,
+                                const void       *pData,
+                                MLibErr_t        *pErr     )
+{
+    /* エラー要因初期化 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
+
+    /* パラメータチェック */
+    if ( ( pHandle == NULL ) ||
+         ( pData   == NULL )    ) {
+        /* 不正 */
+
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
+
+        return MLIB_RET_FAILURE;
+    }
+
+    /* リングバッファ追加 */
+    Push( pHandle, pData );
+
+    return MLIB_RET_SUCCESS;
+}
+
+
+/******************************************************************************/
+/* ローカル関数定義                                                           */
+/******************************************************************************/
+/******************************************************************************/
+/**
+ * @brief       リングバッファ追加(内部関数)
+ * @details     リングバッファにデータを追加する。追加先インデックスが取出し先
+ *              インデックスに到達する場合は、最古のデータに最新のデータを上書
+ *              きし、取出し先インデックスを更新する。
+ *
+ * @param[in]   *pHandle リングバッファハンドル
+ * @param[in]   *pData   追加するデータ
+ */
+/******************************************************************************/
+static void Push( MLibRingBuffer_t *pHandle,
+                  const void       *pData    )
+{
+    char *pAddr;    /* データ追加先 */
+
+    /* データ追加先アドレス算出 */
     pAddr = ( ( char * ) pHandle->pBuffer ) +
             pHandle->pushIdx * pHandle->entrySize;
 
     /* バッファ追加 */
     memcpy( pAddr, pData, pHandle->entrySize );
 
-    /* プッシュインデックス更新 */
+    /* 追加先インデックス更新 */
     pHandle->pushIdx++;
 
-    /* プッシュインデックスラップ判定 */
+    /* 追加先インデックスラップ判定 */
     if ( pHandle->pushIdx > pHandle->entryNum ) {
         /* ラップ */
 
+        /* 追加先インデックス初期化 */
         pHandle->pushIdx = 0;
     }
 
-    /* ポップインデックス更新判定 */
-    if ( pHandle->popIdx == pHandle->pushIdx ) {
-        /* 更新 */
+    /* 取出し先インデックス到達判定 */
+    if ( pHandle->pushIdx == pHandle->popIdx ) {
+        /* 到達 */
 
+        /* 取出し先インデックス更新 */
         pHandle->popIdx++;
-    }
 
-    /* ポップインデックスラップ判定 */
-    if ( pHandle->popIdx > pHandle->entryNum ) {
-        /* ラップ */
+        /* 取出し先インデックスラップ判定 */
+        if ( pHandle->popIdx > pHandle->entryNum ) {
+            /* ラップ */
 
-        pHandle->popIdx = 0;
-    }
+            /* 取出し先インデックス初期化 */
+            pHandle->popIdx = 0;
+        }
 
-    /* データ数上限判定 */
-    if ( pHandle->num < pHandle->entryNum ) {
-        /* 非上限 */
+    } else {
+        /* 未到達 */
 
         /* データ数更新 */
         pHandle->num++;
     }
 
-    return MLIB_RET_SUCCESS;
+    return;
 }
 
 

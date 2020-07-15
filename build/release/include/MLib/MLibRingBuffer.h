@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* MLib/MLibRingBuffer.h                                                      */
-/*                                                                 2020/06/23 */
+/*                                                                 2020/07/15 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -39,26 +39,26 @@ typedef struct {
 /* リングバッファクリア */
 extern MLibRet_t MLibRingBufferClear( MLibRingBuffer_t *pHandle,
                                       MLibErr_t        *pErr     );
-
 /* リングバッファ削除 */
 extern MLibRet_t MLibRingBufferExit( MLibRingBuffer_t *pHandle,
                                      MLibErr_t        *pErr     );
-
 /* リングバッファハンドル初期化 */
 extern MLibRet_t MLibRingBufferInit( MLibRingBuffer_t *pHandle,
                                      size_t           entrySize,
                                      size_t           entryNum,
                                      MLibErr_t        *pErr      );
-
-/* リングバッファ取り出し */
+/* リングバッファ取出 */
 extern MLibRet_t MLibRingBufferPop( MLibRingBuffer_t *pHandle,
                                     void             *pData,
                                     MLibErr_t        *pErr     );
-
-/* リングバッファ追加 */
+/* リングバッファ追加(上書き禁止) */
 extern MLibRet_t MLibRingBufferPush( MLibRingBuffer_t *pHandle,
                                      const void       *pData,
                                      MLibErr_t        *pErr     );
+/* リングバッファ追加(上書き許可) */
+extern MLibRet_t MLibRingBufferPushOW( MLibRingBuffer_t *pHandle,
+                                       const void       *pData,
+                                       MLibErr_t        *pErr     );
 
 
 /******************************************************************************/

@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLibTypes.h                                               */
-/*                                                                 2019/09/24 */
-/* Copyright (C) 2019 Mochi                                                   */
+/*                                                                 2020/07/15 */
+/* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
 #ifndef _MLIB_TYPES_H_
@@ -34,6 +34,7 @@ typedef int32_t MLibRet_t;
 #define MLIB_ERR_NOMEMORY  ( 0x00000002 )   /**< メモリ不足       */
 #define MLIB_ERR_NOENTRY   ( 0x00000003 )   /**< 該当エントリ無し */
 #define MLIB_ERR_LIMITOVER ( 0x00000004 )   /**< 上限超過         */
+#define MLIB_ERR_FULL      ( 0x00000005 )   /**< バッファフル     */
 
 /** エラー要因 */
 typedef uint32_t MLibErr_t;
