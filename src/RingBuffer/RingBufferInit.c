@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferInit.c                                            */
-/*                                                                 2020/05/01 */
+/*                                                                 2020/07/18 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -14,6 +14,7 @@
 
 /* ライブラリヘッダ */
 #include <MLib/MLibRingBuffer.h>
+#include <MLib/MLibSpin.h>
 
 
 /******************************************************************************/
@@ -59,8 +60,10 @@ MLibRet_t MLibRingBufferInit( MLibRingBuffer_t *pHandle,
         return MLIB_RET_FAILURE;
     }
 
+    /* スピンロック初期化 */
+    MLibSpinInit( &( pHandle->lock ), NULL );
+
     /* ハンドル初期化 */
-    memset( pHandle, 0, sizeof ( MLibRingBuffer_t ) );
     pHandle->entrySize  = entrySize;
     pHandle->entryNum   = entryNum;
     pHandle->bufferSize = entrySize * entryNum;
@@ -69,7 +72,7 @@ MLibRet_t MLibRingBufferInit( MLibRingBuffer_t *pHandle,
     pHandle->popIdx     = 0;
     pHandle->pBuffer    = malloc( pHandle->bufferSize );
 
-    /* 確保結果判定 */
+    /* バッファ確保結果判定 */
     if ( pHandle->pBuffer == NULL ) {
         /* 失敗 */
 
@@ -79,7 +82,7 @@ MLibRet_t MLibRingBufferInit( MLibRingBuffer_t *pHandle,
         return MLIB_RET_FAILURE;
     }
 
-    /* 初期化 */
+    /* バッファ初期化 */
     memset( pHandle->pBuffer, 0, pHandle->bufferSize );
 
     return MLIB_RET_SUCCESS;

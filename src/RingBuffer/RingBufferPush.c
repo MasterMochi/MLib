@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferPush.c                                            */
-/*                                                                 2020/07/15 */
+/*                                                                 2020/07/18 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -14,6 +14,7 @@
 
 /* ライブラリヘッダ */
 #include <MLib/MLibRingBuffer.h>
+#include <MLib/MLibSpin.h>
 
 
 /******************************************************************************/
@@ -43,12 +44,19 @@ static void Push( MLibRingBuffer_t *pHandle,
  * @return      データ追加結果を返す。
  * @retval      MLIB_RET_SUCCESS 成功
  * @retval      MLIB_RET_FAILURE 失敗
+ *
+ * @note        本関数はスピンロックにより排他される。
  */
 /******************************************************************************/
 MLibRet_t MLibRingBufferPush( MLibRingBuffer_t *pHandle,
                               const void       *pData,
                               MLibErr_t        *pErr     )
 {
+    MLibRet_t ret;  /* 戻り値 */
+
+    /* 初期化 */
+    ret = MLIB_RET_FAILURE;
+
     /* エラー要因初期化 */
     MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
 
@@ -63,6 +71,9 @@ MLibRet_t MLibRingBufferPush( MLibRingBuffer_t *pHandle,
         return MLIB_RET_FAILURE;
     }
 
+    /* スピンロック */
+    MLibSpinLock( &( pHandle->lock ), NULL );
+
     /* バッファフル判定 */
     if ( ( ( pHandle->pushIdx + 1 ) == pHandle->popIdx ) ||
          ( ( pHandle->pushIdx == pHandle->entryNum ) &&
@@ -72,13 +83,20 @@ MLibRet_t MLibRingBufferPush( MLibRingBuffer_t *pHandle,
         /* エラー要因設定 */
         MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_FULL );
 
-        return MLIB_RET_FAILURE;
+    } else {
+        /* バッファ空き有り */
+
+        /* リングバッファ追加 */
+        Push( pHandle, pData );
+
+        /* 戻り値設定 */
+        ret = MLIB_RET_SUCCESS;
     }
 
-    /* リングバッファ追加 */
-    Push( pHandle, pData );
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pHandle->lock ), NULL );
 
-    return MLIB_RET_SUCCESS;
+    return ret;
 }
 
 
@@ -97,6 +115,8 @@ MLibRet_t MLibRingBufferPush( MLibRingBuffer_t *pHandle,
  * @return      データ追加結果を返す。
  * @retval      MLIB_RET_SUCCESS 成功
  * @retval      MLIB_RET_FAILURE 失敗
+ *
+ * @note        本関数はスピンロックにより排他される。
  */
 /******************************************************************************/
 MLibRet_t MLibRingBufferPushOW( MLibRingBuffer_t *pHandle,
@@ -117,8 +137,14 @@ MLibRet_t MLibRingBufferPushOW( MLibRingBuffer_t *pHandle,
         return MLIB_RET_FAILURE;
     }
 
+    /* スピンロック */
+    MLibSpinLock( &( pHandle->lock ), NULL );
+
     /* リングバッファ追加 */
     Push( pHandle, pData );
+
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pHandle->lock ), NULL );
 
     return MLIB_RET_SUCCESS;
 }

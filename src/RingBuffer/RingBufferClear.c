@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferClear.c                                           */
-/*                                                                 2020/06/23 */
+/*                                                                 2020/07/18 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -14,6 +14,7 @@
 
 /* ライブラリヘッダ */
 #include <MLib/MLibRingBuffer.h>
+#include <MLib/MLibSpin.h>
 
 
 /******************************************************************************/
@@ -32,6 +33,8 @@
  * @return      初期化結果を返す。
  * @retval      MLIB_RET_SUCCESS 成功
  * @retval      MLIB_RET_FAILURE 失敗
+ *
+ * @note        本関数はスピンロックによって排他される。
  */
 /******************************************************************************/
 MLibRet_t MLibRingBufferClear( MLibRingBuffer_t *pHandle,
@@ -50,10 +53,16 @@ MLibRet_t MLibRingBufferClear( MLibRingBuffer_t *pHandle,
         return MLIB_RET_FAILURE;
     }
 
+    /* スピンロック */
+    MLibSpinLock( &( pHandle->lock ), NULL );
+
     /* バッファクリア */
     pHandle->num     = 0;
     pHandle->pushIdx = 0;
     pHandle->popIdx  = 0;
+
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pHandle->lock ), NULL );
 
     return MLIB_RET_SUCCESS;
 }
