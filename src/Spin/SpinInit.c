@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/Spin/SpinInit.c                                                        */
-/*                                                                 2020/07/14 */
+/*                                                                 2020/07/18 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -51,7 +51,7 @@ MLibRet_t MLibSpinInit( MLibSpin_t *pHandle,
 
     /* ハンドル初期化 */
     memset( pHandle, 0, sizeof ( MLibSpin_t ) );
-    pHandle->lock = MLIB_SPIN_LOCKED;
+    pHandle->lock = MLIB_SPIN_UNLOCKED;
 
     return MLIB_RET_SUCCESS;
 }
