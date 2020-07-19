@@ -1,7 +1,7 @@
 #******************************************************************************#
 #*                                                                            *#
 #* src/Makefile                                                               *#
-#*                                                                 2020/07/13 *#
+#*                                                                 2020/07/19 *#
 #* Copyright (C) 2018-2020 Mochi.                                             *#
 #*                                                                            *#
 #******************************************************************************#
@@ -53,6 +53,7 @@ CFLAGS  = -O
 CFLAGS += -Wall
 CFLAGS += -masm=intel
 CFLAGS += -m32
+CFLAGS += -fno-pic
 CFLAGS += -ffreestanding
 CFLAGS += -Iinclude
 CFLAGS += -I$(RELEASE_DIR)/include
