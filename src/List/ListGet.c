@@ -1,7 +1,9 @@
 /******************************************************************************/
+/*                                                                            */
 /* src/List/ListGet.c                                                         */
-/*                                                                 2019/01/13 */
-/* Copyright (C) 2017-2019 Mochi.                                             */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2017-2020 Mochi.                                             */
+/*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
 /* インクルード                                                               */
@@ -12,6 +14,7 @@
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
 #include <MLib/MLibList.h>
+#include <MLib/MLibSpin.h>
 
 
 /******************************************************************************/
@@ -29,6 +32,8 @@
  * @return      次ノードを返す。
  * @retval      NULL     ノード無
  * @retval      NULL以外 ノード有
+ *
+ * @note        本関数はスピンロックを用いて排他制御する。
  */
 /******************************************************************************/
 MLibListNode_t *MLibListGetNextNode( MLibList_t     *pList,
@@ -46,6 +51,9 @@ MLibListNode_t *MLibListGetNextNode( MLibList_t     *pList,
         return NULL;
     }
 
+    /* スピンロック */
+    MLibSpinLock( &( pList->lock ), NULL );
+
     /* ノード指定判定 */
     if ( pNode == NULL ) {
         /* 指定無 */
@@ -59,6 +67,9 @@ MLibListNode_t *MLibListGetNextNode( MLibList_t     *pList,
         /* 次ノード返却 */
         pRet = pNode->pNext;
     }
+
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pList->lock ), NULL );
 
     return pRet;
 }
@@ -76,6 +87,8 @@ MLibListNode_t *MLibListGetNextNode( MLibList_t     *pList,
  * @return      前ノードを返す。
  * @retval      NULL     ノード無
  * @retval      NULL以外 ノード有
+ *
+ * @note        本関数はスピンロックを用いて排他制御する。
  */
 /******************************************************************************/
 MLibListNode_t *MLibListGetPrevNode( MLibList_t     *pList,
@@ -93,6 +106,9 @@ MLibListNode_t *MLibListGetPrevNode( MLibList_t     *pList,
         return NULL;
     }
 
+    /* スピンロック */
+    MLibSpinLock( &( pList->lock ), NULL );
+
     /* ノード指定判定 */
     if ( pNode == NULL ) {
         /* 指定無 */
@@ -106,6 +122,9 @@ MLibListNode_t *MLibListGetPrevNode( MLibList_t     *pList,
         /* 前ノード返却 */
         pRet = pNode->pPrev;
     }
+
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pList->lock ), NULL );
 
     return pRet;
 }

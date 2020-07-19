@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/State/StateGet.c                                                       */
-/*                                                                 2019/06/21 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -19,30 +19,30 @@
 /******************************************************************************/
 /**
  * @brief       状態取得
- * @details     状態遷移ハンドル(*pHandle)が管理する状態遷移の状態を取得する。
+ * @details     状態を取得する。
  *
  * @param[in]   *pHandle 状態遷移ハンドル
- * @param[out]  *pErrNo  エラー番号
- *                  - MLIB_STATE_ERR_NONE  エラー無し
- *                  - MLIB_STATE_ERR_PARAM パラメータエラー
+ * @param[out]  *pErr    エラー要因
+ *                  - MLIB_ERR_NONE  エラー無し
+ *                  - MLIB_ERR_PARAM パラメータ不正
  *
  * @return      状態を返す。
  * @retval      MLIB_STATE_NULL     異常終了
  * @retval      MLIB_STATE_NULL以外 状態番号
  */
 /******************************************************************************/
-MLibState_t MLibStateGet( MLibStateHandle_t *pHandle,
-                          uint32_t          *pErrNo   )
+MLibStateNo_t MLibStateGet( MLibState_t *pHandle,
+                            MLibErr_t   *pErr     )
 {
-    /* 初期化 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_STATE_ERR_NONE );
+    /* エラー要因初期化 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
 
     /* 状態遷移ハンドルチェック */
     if ( pHandle == NULL ) {
         /* 不正 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_STATE_ERR_PARAM );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
 
         return MLIB_STATE_NULL;
     }
@@ -52,4 +52,3 @@ MLibState_t MLibStateGet( MLibStateHandle_t *pHandle,
 
 
 /******************************************************************************/
-

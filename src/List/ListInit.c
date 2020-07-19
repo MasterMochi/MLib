@@ -1,7 +1,9 @@
 /******************************************************************************/
+/*                                                                            */
 /* src/List/ListInit.c                                                        */
-/*                                                                 2019/01/13 */
-/* Copyright (C) 2017-2019 Mochi.                                             */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2017-2020 Mochi.                                             */
+/*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
 /* インクルード                                                               */
@@ -12,6 +14,7 @@
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
 #include <MLib/MLibList.h>
+#include <MLib/MLibSpin.h>
 
 
 /******************************************************************************/
@@ -25,8 +28,8 @@
  * @param[in]   *pList 連結リスト
  *
  * @return      初期化結果を返す。
- * @retval      MLIB_SUCCESS 正常終了
- * @retval      MLIB_FAILURE 異常終了
+ * @retval      MLIB_RET_SUCCESS 正常終了
+ * @retval      MLIB_RET_FAILURE 異常終了
  */
 /******************************************************************************/
 MLibRet_t MLibListInit( MLibList_t *pList )
@@ -35,15 +38,18 @@ MLibRet_t MLibListInit( MLibList_t *pList )
     if ( pList == NULL ) {
         /* NULL */
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
+
+    /* スピンロック初期化 */
+    MLibSpinInit( &( pList->lock ), NULL );
 
     /* 連結リスト初期化 */
     pList->pHead = NULL;
     pList->pTail = NULL;
     pList->size  = 0;
 
-    return MLIB_SUCCESS;
+    return MLIB_RET_SUCCESS;
 }
 
 

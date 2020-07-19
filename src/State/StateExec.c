@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/State/StateExec.c                                                      */
-/*                                                                 2019/06/21 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -11,16 +11,25 @@
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
 #include <MLib/MLibState.h>
+#include <MLib/MLibSpin.h>
 
 
 /******************************************************************************/
 /* ローカル関数宣言                                                           */
 /******************************************************************************/
-static MLibRet_t ExecTask( MLibStateHandle_t           *pHandle,
+/* 状態遷移実行(内部関数) */
+static MLibRet_t Exec( MLibState_t      *pHandle,
+                       MLibStateEvent_t event,
+                       void             *pArg,
+                       MLibStateNo_t    *pPrevState,
+                       MLibStateNo_t    *pNextState,
+                       MLibErr_t        *pErr        );
+/* 状態遷移タスク実行 */
+static MLibRet_t ExecTask( MLibState_t                 *pHandle,
                            const MLibStateTransition_t *pTransition,
                            void                        *pArg,
-                           MLibState_t                 *pNextState,
-                           uint32_t                    *pErrNo       );
+                           MLibStateNo_t               *pNextState,
+                           MLibErr_t                   *pErr         );
 
 
 /******************************************************************************/
@@ -29,51 +38,105 @@ static MLibRet_t ExecTask( MLibStateHandle_t           *pHandle,
 /******************************************************************************/
 /**
  * @brief           状態遷移実行
- * @details         状態遷移ハンドル(*pHandle)が管理する状態にイベント(event)を
- *                  入力し、状態遷移表に従った状態遷移タスクを実行する。
+ * @details         状態遷移表に従って状態とイベントに対応する状態遷移タスクを
+ *                  実行する。
  *
  * @param[in/out]   *pHandle    状態遷移ハンドル
  * @param[in]       event       イベント番号
  * @param[in]       *pArg       状態遷移タスク引数
  * @param[out]      *pPrevState 遷移前状態
  * @param[out]      *pNextState 遷移先状態
- * @param[out]      *pErrNo     エラー番号
- *                      - MLIB_STATE_ERR_NONE     エラー無し
- *                      - MLIB_STATE_ERR_PARAM    パラメータエラー
- *                      - MLIB_STATE_ERR_NO_TRANS 状態遷移無し
+ * @param[out]      *pErr       エラー要因
+ *                      - MLIB_ERR_NONE    エラー無し
+ *                      - MLIB_ERR_PARAM   パラメータ不正
+ *                      - MLIB_ERR_NOTRANS 状態遷移無し
+ *                      - MLIB_ERR_TRANS   状態遷移不正
  *
  * @return          処理結果を返す。
- * @retval          MLIB_SUCCESS 正常終了
- * @retval          MLIB_FAILURE 異常終了
+ * @retval          MLIB_RET_SUCCESS 正常終了
+ * @retval          MLIB_RET_FAILURE 異常終了
+ *
+ * @note            本関数はスピンロックを用いて排他する。
  */
 /******************************************************************************/
-MLibRet_t MLibStateExec( MLibStateHandle_t *pHandle,
-                         MLibStateEvent_t  event,
-                         void              *pArg,
-                         MLibState_t       *pPrevState,
-                         MLibState_t       *pNextState,
-                         uint32_t          *pErrNo      )
+MLibRet_t MLibStateExec( MLibState_t      *pHandle,
+                         MLibStateEvent_t event,
+                         void             *pArg,
+                         MLibStateNo_t    *pPrevState,
+                         MLibStateNo_t    *pNextState,
+                         MLibErr_t        *pErr        )
 {
-    uint32_t idx;   /* カウンタ */
+    MLibRet_t ret;  /* 戻り値 */
 
     /* 初期化 */
-    idx = 0;
+    ret = MLIB_RET_FAILURE;
 
-    /* エラー番号初期化 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_STATE_ERR_NONE );
+    /* エラー要因初期化 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
 
     /* 状態遷移ハンドルチェック */
     if ( pHandle == NULL ) {
         /* 不正 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_STATE_ERR_PARAM );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
+
+    /* スピンロック */
+    MLibSpinLock( &( pHandle->lock ), NULL );
 
     /* 遷移前状態設定 */
     MLIB_SET_IFNOT_NULL( pPrevState, pHandle->state );
+
+    /* 状態遷移実行(内部関数) */
+    ret = Exec( pHandle, event, pArg, pPrevState, pNextState, pErr );
+
+    /* 遷移先状態設定 */
+    MLIB_SET_IFNOT_NULL( pNextState, pHandle->state );
+
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pHandle->lock ), NULL );
+
+    return ret;
+}
+
+
+/******************************************************************************/
+/* ローカル関数定義                                                           */
+/******************************************************************************/
+/******************************************************************************/
+/**
+ * @brief           状態遷移実行(内部関数)
+ * @details         状態遷移表に従って状態とイベントに対応する状態遷移タスクを
+ *                  実行する。
+ *
+ * @param[in/out]   *pHandle    状態遷移ハンドル
+ * @param[in]       event       イベント番号
+ * @param[in]       *pArg       状態遷移タスク引数
+ * @param[out]      *pPrevState 遷移前状態
+ * @param[out]      *pNextState 遷移先状態
+ * @param[out]      *pErr       エラー要因
+ *                      - MLIB_ERR_PARAM   パラメータ不正
+ *                      - MLIB_ERR_NOTRANS 状態遷移無し
+ *
+ * @return          処理結果を返す。
+ * @retval          MLIB_RET_SUCCESS 正常終了
+ * @retval          MLIB_RET_FAILURE 異常終了
+ */
+/******************************************************************************/
+static MLibRet_t Exec( MLibState_t      *pHandle,
+                       MLibStateEvent_t event,
+                       void             *pArg,
+                       MLibStateNo_t    *pPrevState,
+                       MLibStateNo_t    *pNextState,
+                       MLibErr_t        *pErr        )
+{
+    uint32_t idx;   /* 状態遷移表インデックス */
+
+    /* 初期化 */
+    idx = 0;
 
     /* 全状態遷移毎に繰り返し */
     for ( idx = 0; idx < pHandle->transitionNum; idx++ ) {
@@ -87,68 +150,72 @@ MLibRet_t MLibStateExec( MLibStateHandle_t *pHandle,
                              &( pHandle->pTable[ idx ] ),
                              pArg,
                              pNextState,
-                             pErrNo                       );
+                             pErr                         );
         }
     }
 
-    /* エラー番号設定 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_STATE_ERR_NO_TRANS );
+    /* エラー要因設定 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NOTRANS );
 
-    return MLIB_FAILURE;
+    return MLIB_RET_FAILURE;
 }
 
 
 /******************************************************************************/
-/* ローカル関数定義                                                           */
-/******************************************************************************/
-/******************************************************************************/
 /**
  * @brief           状態遷移タスク実行
- * @details         状態遷移(*pTransition)に登録されたタスクを起動する。遷移先
- *                  状態が状態遷移通りか判定する。
+ * @details         状態遷移に登録されたタスクを起動する。遷移先状態が状態遷移
+ *                  表通りか判定する。
  *
  * @param[in/out]   *pHandle     状態遷移ハンドル
  * @param[in]       *pTransition 状態遷移
  * @param[in]       *pArg        状態遷移タスク引数
  * @param[out]      *pNextState  遷移先状態
- * @param[out]      *pErrNo      エラー番号
- *                      - MLIB_STATE_ERR_NONE  エラー無し
- *                      - MLIB_STATE_ERR_PARAM パラメータエラー
- *                      - MLIB_STATE_ERR_TRANS 不正状態遷移
+ * @param[out]      *pErr        エラー要因
+ *                      - MLIB_ERR_PARAM パラメータ不正
+ *                      - MLIB_ERR_TRANS 状態遷移不正
  *
  * @return          処理結果を返す。
- * @retval          MLIB_SUCCESS 正常終了
- * @retval          MLIB_FAILURE 異常終了
+ * @retval          MLIB_RET_SUCCESS 正常終了
+ * @retval          MLIB_RET_FAILURE 異常終了
  */
 /******************************************************************************/
-static MLibRet_t ExecTask( MLibStateHandle_t           *pHandle,
+static MLibRet_t ExecTask( MLibState_t                 *pHandle,
                            const MLibStateTransition_t *pTransition,
                            void                        *pArg,
-                           MLibState_t                 *pNextState,
-                           uint32_t                    *pErrNo       )
+                           MLibStateNo_t               *pNextState,
+                           MLibErr_t                   *pErr         )
 {
-    uint32_t    idx;    /* カウンタ   */
-    MLibState_t state;  /* 遷移先状態 */
+    uint32_t      idx;    /* 遷移先インデックス */
+    MLibStateNo_t state;  /* 遷移先状態         */
 
     /* 初期化 */
-    idx = 0;
-
-    /* エラー番号初期化 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_STATE_ERR_NONE );
+    idx   = 0;
+    state = MLIB_STATE_NULL;
 
     /* 状態遷移タスク有無判定 */
     if ( pTransition->task == NULL ) {
         /* タスク無し */
 
+        /* 状態遷移先判定 */
+        if ( pTransition->next[ 0 ] == MLIB_STATE_NULL ) {
+            /* 不正 */
+
+            /* エラー要因設定 */
+            MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_TRANS );
+
+            return MLIB_RET_FAILURE;
+        }
+
         /* 遷移先状態設定 */
-        state = pTransition->next[ 0 ];
+        pHandle->state = pTransition->next[ 0 ];
 
-    } else {
-        /* タスク有り */
+        return MLIB_RET_SUCCESS;
 
-        /* 状態遷移タスク起動 */
-        state = ( pTransition->task )( pArg );
     }
+
+    /* 状態遷移タスク起動 */
+    state = ( pTransition->task )( pArg );
 
     /* 遷移先状態毎に繰り返し */
     for ( idx = 0; idx < MLIB_STATE_NEXT_NUM; idx++ ) {
@@ -157,19 +224,22 @@ static MLibRet_t ExecTask( MLibStateHandle_t           *pHandle,
             /* 一致 */
 
             /* 遷移先状態設定 */
-            MLIB_SET_IFNOT_NULL( pNextState, state );
             pHandle->state = state;
 
-            return MLIB_SUCCESS;
+            return MLIB_RET_SUCCESS;
+
+        } else if ( pTransition -> next[ idx ] == 0 ) {
+            /* 終端 */
+
+            break;
         }
     }
 
-    /* エラー番号設定 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_STATE_ERR_TRANS );
+    /* エラー要因設定 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_TRANS );
 
-    return MLIB_FAILURE;
+    return MLIB_RET_FAILURE;
 }
 
 
 /******************************************************************************/
-

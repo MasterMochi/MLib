@@ -1,9 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLibList.h                                                */
-/*                                                                 2019/11/18 */
-/* Copyright (C) 2017-2019 Mochi.                                             */
-/* https://github.com/MasterMochi/MLib.git                                    */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2017-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 #ifndef _MLIB_LIST_H_
@@ -17,6 +16,7 @@
 
 /* ライブラリヘッダ */
 #include "MLib.h"
+#include "MLibSpin.h"
 
 
 /******************************************************************************/
@@ -35,6 +35,7 @@ typedef struct MLibListNode {
 
 /** 連結リスト構造体 */
 typedef struct MLibList {
+    MLibSpin_t     lock;    /**< スピンロック           */
     MLibListNode_t *pHead;  /**< 先頭ノード             */
     MLibListNode_t *pTail;  /**< 最後尾ノード           */
     size_t         size;    /**< 連結リストのノード個数 */

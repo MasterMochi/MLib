@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/List/ListSearch.c                                                      */
-/*                                                                 2019/11/18 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -14,6 +14,10 @@
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
 #include <MLib/MLibList.h>
+#include <MLib/MLibSpin.h>
+
+/* モジュール内ヘッダ */
+#include "ListRemove.h"
 
 
 /******************************************************************************/
@@ -36,6 +40,8 @@
  * @return      該当ノードを返す。
  * @retval      NULL     該当ノード無
  * @retval      NULL以外 該当ノード有
+ *
+ * @note        本関数はスピンロックを用いて排他制御する。
  */
 /******************************************************************************/
 MLibListNode_t *MLibListSearchHead( MLibList_t             *pList,
@@ -58,6 +64,9 @@ MLibListNode_t *MLibListSearchHead( MLibList_t             *pList,
     ret   = MLIB_RET_FAILURE;
     pNode = pList->pHead;
 
+    /* スピンロック */
+    MLibSpinLock( &( pList->lock ), NULL );
+
     /* ノード毎に繰り返す */
     while ( pNode != NULL ) {
         /* コールバック関数呼出し */
@@ -76,13 +85,16 @@ MLibListNode_t *MLibListSearchHead( MLibList_t             *pList,
         if ( method == MLIB_LIST_REMOVE ) {
             /* 削除 */
 
-            MLibListRemove( pList, pNode );
+            ListRemove( pList, pNode );
         }
 
-        return pNode;
+        break;
     }
 
-    return NULL;
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pList->lock ), NULL );
+
+    return pNode;
 }
 
 

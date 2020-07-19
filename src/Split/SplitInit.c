@@ -1,7 +1,9 @@
 /******************************************************************************/
+/*                                                                            */
 /* src/Split/SplitInit.c                                                      */
-/*                                                                 2019/01/13 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2019-2020 Mochi.                                             */
+/*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
 /* インクルード                                                               */
@@ -27,14 +29,14 @@
  * @param[in]   *pStr      文字列
  * @param[in]   length     文字列文字数
  * @param[in]   delimiter  区切り文字
- * @param[out]  *pErrNo    エラー番号
- *                         - MLIB_SPLIT_ERR_NONE  エラー無し
- *                         - MLIB_SPLIT_ERR_PARAM パラメータエラー
- *                         - MLIB_SPLIT_ERR_NOMEM メモリ不足エラー
+ * @param[out]  *pErr      エラー要因
+ *                         - MLIB_ERR_NONE     エラー無し
+ *                         - MLIB_ERR_PARAM    パラメータ不正
+ *                         - MLIB_ERR_NOMEMORY メモリ不足
  *
  * @return      処理結果を返す。
- * @retval      MLIB_SUCCESS 成功
- * @retval      MLIB_FAILURE 失敗
+ * @retval      MLIB_RET_SUCCESS 成功
+ * @retval      MLIB_RET_FAILURE 失敗
  *
  * @note        - 文字列は必ず1文字以上あること。
  *              - 区切り文字にNULL文字は使用できない。
@@ -42,11 +44,11 @@
  * @attention   - 使用済みハンドルは、MLibSplitTerm()を用いて解放すること。
  */
 /******************************************************************************/
-MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle_t **ppHandle,
-                                    const char        *pStr,
-                                    size_t            length,
-                                    char              delimiter,
-                                    uint32_t          *pErrNo     )
+MLibRet_t MLibSplitInitByDelimiter( MLibSplit_t **ppHandle,
+                                    const char  *pStr,
+                                    size_t      length,
+                                    char        delimiter,
+                                    MLibErr_t   *pErr       )
 {
     char     *pSplitStr;    /* 分割文字列             */
     uint32_t idx;           /* 文字列インデックス     */
@@ -59,6 +61,9 @@ MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle_t **ppHandle,
     splitStrIdx  = 0;
     delimiterNum = 0;
 
+    /* エラー要因設定 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
+
     /* パラメータチェック */
     if ( ( ppHandle  == NULL ) ||
          ( pStr      == NULL ) ||
@@ -66,10 +71,10 @@ MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle_t **ppHandle,
          ( delimiter == '\0' )    ) {
         /* 不正 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_PARAM );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
     /* 1文字毎に繰り返す */
@@ -88,8 +93,8 @@ MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle_t **ppHandle,
     }
 
     /* ハンドル生成 */
-    *ppHandle = ( MLibSplitHandle_t * )
-                malloc( sizeof ( MLibSplitHandle_t )             +
+    *ppHandle = ( MLibSplit_t * )
+                malloc( sizeof ( MLibSplit_t )                   +
                         sizeof ( char * ) * ( delimiterNum + 1 ) +
                         length + delimiterNum + 1                  );
 
@@ -97,10 +102,10 @@ MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle_t **ppHandle,
     if ( *ppHandle == NULL ) {
         /* 失敗 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_NOMEM );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NOMEMORY );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
     /* ハンドル初期化 */
@@ -136,10 +141,7 @@ MLibRet_t MLibSplitInitByDelimiter( MLibSplitHandle_t **ppHandle,
         }
     }
 
-    /* エラー番号設定 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_NONE );
-
-    return MLIB_SUCCESS;
+    return MLIB_RET_SUCCESS;
 }
 
 

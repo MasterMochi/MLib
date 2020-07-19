@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLibState.h                                               */
-/*                                                                 2019/06/21 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 #ifndef _MLIB_STATE_H_
@@ -16,17 +16,12 @@
 
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
+#include <MLib/MLibSpin.h>
 
 
 /******************************************************************************/
 /* 定義                                                                       */
 /******************************************************************************/
-/* エラー番号 */
-#define MLIB_STATE_ERR_NONE     ( 0x00000000 )  /**< エラー無し       */
-#define MLIB_STATE_ERR_PARAM    ( 0x00000001 )  /**< パラメータエラー */
-#define MLIB_STATE_ERR_NO_TRANS ( 0x00000002 )  /**< 状態遷移設定無し */
-#define MLIB_STATE_ERR_TRANS    ( 0x00000003 )  /**< 不正状態遷移     */
-
 /** 無効状態番号 */
 #define MLIB_STATE_NULL ( 0 )
 
@@ -37,19 +32,19 @@
 #define MLIB_STATE_NEXT_NUM ( 20 )
 
 /** 状態番号型 */
-typedef uint32_t MLibState_t;
+typedef uint32_t MLibStateNo_t;
 /** イベント番号型 */
 typedef uint32_t MLibStateEvent_t;
 
 /** 状態遷移タスク型 */
-typedef MLibState_t ( *MLibStateTask_t )( void *pArg );
+typedef MLibStateNo_t ( *MLibStateTask_t )( void *pArg );
 
 /** 遷移先状態番号リスト型 */
 typedef MLibStateEvent_t MLibStateList_t[ MLIB_STATE_NEXT_NUM ];
 
 /** 状態遷移表エントリ型 */
 typedef struct {
-    MLibState_t      state; /**< 状態番号             */
+    MLibStateNo_t    state; /**< 状態番号             */
     MLibStateEvent_t event; /**< イベント番号         */
     MLibStateTask_t  task;  /**< 状態遷移タスク       */
     MLibStateList_t  next;  /**< 遷移先状態番号リスト */
@@ -57,37 +52,36 @@ typedef struct {
 
 /** 状態遷移ハンドル型 */
 typedef struct {
-    MLibState_t                 state;          /**< 状態       */
-    const MLibStateTransition_t *pTable;        /**< 状態遷移表 */
-    size_t                      transitionNum;  /**< 状態遷移数 */
-} MLibStateHandle_t;
+    MLibSpin_t                  lock;           /**< スピンロック */
+    MLibStateNo_t               state;          /**< 状態         */
+    const MLibStateTransition_t *pTable;        /**< 状態遷移表   */
+    size_t                      transitionNum;  /**< 状態遷移数   */
+} MLibState_t;
 
 
 /******************************************************************************/
 /* ライブラリ関数宣言                                                         */
 /******************************************************************************/
 /* 状態遷移実行 */
-extern MLibRet_t MLibStateExec( MLibStateHandle_t *pHandle,
-                                MLibStateEvent_t  event,
-                                void              *pArg,
-                                MLibState_t       *pPrevState,
-                                MLibState_t       *pNextState,
-                                uint32_t          *pErrNo      );
+extern MLibRet_t MLibStateExec( MLibState_t      *pHandle,
+                                MLibStateEvent_t event,
+                                void             *pArg,
+                                MLibStateNo_t    *pPrevState,
+                                MLibStateNo_t    *pNextState,
+                                MLibErr_t        *pErr        );
 /* 状態取得 */
-extern MLibState_t MLibStateGet( MLibStateHandle_t *pHandle,
-                                 uint32_t          *pErrNo   );
-
+extern MLibStateNo_t MLibStateGet( MLibState_t *pHandle,
+                                   MLibErr_t   *pErr     );
 /* 状態遷移初期化 */
-extern MLibRet_t MLibStateInit( MLibStateHandle_t           *pHandle,
+extern MLibRet_t MLibStateInit( MLibState_t                 *pHandle,
                                 const MLibStateTransition_t *pTable,
                                 size_t                      tableSize,
-                                MLibState_t                 state,
-                                uint32_t                    *pErrNo    );
-
+                                MLibStateNo_t               state,
+                                MLibErr_t                   *pErr      );
 /* 状態設定 */
-extern MLibRet_t MLibStateSet( MLibStateHandle_t *pHandle,
-                               MLibState_t       state,
-                               uint32_t          *pErrNo   );
+extern MLibRet_t MLibStateSet( MLibState_t   *pHandle,
+                               MLibStateNo_t state,
+                               MLibErr_t     *pErr     );
 
 
 /******************************************************************************/

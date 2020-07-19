@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLibTypes.h                                               */
-/*                                                                 2020/07/15 */
+/*                                                                 2020/07/19 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
@@ -31,10 +31,13 @@ typedef int32_t MLibRet_t;
 /* エラー要因 */
 #define MLIB_ERR_NONE      ( 0x00000000 )   /**< エラー無し       */
 #define MLIB_ERR_PARAM     ( 0x00000001 )   /**< パラメータ不正   */
-#define MLIB_ERR_NOMEMORY  ( 0x00000002 )   /**< メモリ不足       */
-#define MLIB_ERR_NOENTRY   ( 0x00000003 )   /**< 該当エントリ無し */
-#define MLIB_ERR_LIMITOVER ( 0x00000004 )   /**< 上限超過         */
-#define MLIB_ERR_FULL      ( 0x00000005 )   /**< バッファフル     */
+#define MLIB_ERR_TRANS     ( 0x00000002 )   /**< 状態遷移不正     */
+#define MLIB_ERR_NOTRANS   ( 0x00000003 )   /**< 状態遷移設定無し */
+#define MLIB_ERR_NOMEMORY  ( 0x00000004 )   /**< メモリ不足       */
+#define MLIB_ERR_NOENTRY   ( 0x00000005 )   /**< 該当エントリ無し */
+#define MLIB_ERR_INDEX     ( 0x00000006 )   /**< インデックス無効 */
+#define MLIB_ERR_LIMITOVER ( 0x00000007 )   /**< 上限超過         */
+#define MLIB_ERR_FULL      ( 0x00000008 )   /**< バッファフル     */
 
 /** エラー要因 */
 typedef uint32_t MLibErr_t;

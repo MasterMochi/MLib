@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/List/ListInsert.c                                                      */
-/*                                                                 2020/05/28 */
+/*                                                                 2020/07/19 */
 /* Copyright (C) 2017-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
@@ -15,6 +15,7 @@
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
 #include <MLib/MLibList.h>
+#include <MLib/MLibSpin.h>
 
 
 /******************************************************************************/
@@ -25,72 +26,77 @@
  * @brief       ノード先頭挿入
  * @details     指定した連結リストの先頭に新しいノードを挿入する。
  *
- * @param[in]   *pList      連結リスト
- * @param[in]   *pNewNode   挿入ノード
+ * @param[in]   *pList    連結リスト
+ * @param[in]   *pNewNode 挿入ノード
  *
  * @return      処理結果を返す。
- * @retval      MLIB_SUCCESS 正常終了
- * @retval      MLIB_FAILURE 異常終了
+ * @retval      MLIB_RET_SUCCESS 正常終了
+ * @retval      MLIB_RET_FAILURE 異常終了
+ *
+ * @note        本関数はスピンロックを用いて排他制御する。
  */
 /******************************************************************************/
 MLibRet_t MLibListInsertHead( MLibList_t     *pList,
                               MLibListNode_t *pNewNode )
 {
+    MLibRet_t      ret;         /* 戻り値       */
     MLibListNode_t *pOldHead;   /* 旧先頭ノード */
 
     /* 初期化 */
+    ret      = MLIB_RET_FAILURE;
     pOldHead = NULL;
 
-    /* 引数pListチェック */
-    if ( pList == NULL ) {
+    /* パラメータチェック */
+    if ( ( pList    == NULL ) ||
+         ( pNewNode == NULL )    ) {
         /* 不正値 */
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
-    /* 引数pNewNodeチェック */
-    if ( pNewNode == NULL ) {
-        /* 不正値 */
-
-        return MLIB_FAILURE;
-    }
+    /* スピンロック */
+    MLibSpinLock( &( pList->lock ), NULL );
 
     /* 連結リストサイズチェック */
-    if ( pList->size == SIZE_MAX ) {
-        /* サイズ不正 */
+    if ( pList->size != SIZE_MAX ) {
+        /* 空き有り */
 
-        return MLIB_FAILURE;
+        /* 旧先頭ノード取得 */
+        pOldHead = pList->pHead;
+
+        /* 連結リスト先頭ノード設定 */
+        pList->pHead = pNewNode;
+
+        /* 挿入ノード設定 */
+        pNewNode->pList = pList;
+        pNewNode->pNext = pOldHead;
+        pNewNode->pPrev = NULL;
+
+        /* 旧先頭ノード有無判定 */
+        if ( pOldHead == NULL ) {
+            /* 旧先頭ノード無 */
+
+            /* 連結リスト最後尾ノード設定 */
+            pList->pTail = pNewNode;
+
+        } else {
+            /* 旧先頭ノード有 */
+
+            /* 旧先頭ノード設定 */
+            pOldHead->pPrev = pNewNode;
+        }
+
+        /* 連結リストサイズ設定 */
+        pList->size++;
+
+        /* 戻り値設定 */
+        ret = MLIB_RET_SUCCESS;
     }
 
-    /* 旧先頭ノード取得 */
-    pOldHead = pList->pHead;
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pList->lock ), NULL );
 
-    /* 連結リスト先頭ノード設定 */
-    pList->pHead = pNewNode;
-
-    /* 挿入ノード設定 */
-    pNewNode->pList = pList;
-    pNewNode->pNext = pOldHead;
-    pNewNode->pPrev = NULL;
-
-    /* 旧先頭ノード有無判定 */
-    if ( pOldHead == NULL ) {
-        /* 旧先頭ノード無 */
-
-        /* 連結リスト最後尾ノード設定 */
-        pList->pTail = pNewNode;
-
-    } else {
-        /* 旧先頭ノード有 */
-
-        /* 旧先頭ノード設定 */
-        pOldHead->pPrev = pNewNode;
-    }
-
-    /* 連結リストサイズ設定 */
-    pList->size++;
-
-    return MLIB_SUCCESS;
+    return ret;
 }
 
 
@@ -99,22 +105,26 @@ MLibRet_t MLibListInsertHead( MLibList_t     *pList,
  * @brief       ノード次挿入
  * @details     指定したノードの次に新しいノードを挿入する。
  *
- * @param[in]   *pList      連結リスト
- * @param[in]   *pNode      挿入先ノード
- * @param[in]   *pNewNode   挿入ノード
+ * @param[in]   *pList    連結リスト
+ * @param[in]   *pNode    挿入先ノード
+ * @param[in]   *pNewNode 挿入ノード
  *
  * @return      処理結果を返す。
- * @retval      MLIB_SUCCESS 正常終了
- * @retval      MLIB_FAILURE 異常終了
+ * @retval      MLIB_RET_SUCCESS 正常終了
+ * @retval      MLIB_RET_FAILURE 異常終了
+ *
+ * @note        本関数はスピンロックを用いて排他制御する。
  */
 /******************************************************************************/
 MLibRet_t MLibListInsertNext( MLibList_t     *pList,
                               MLibListNode_t *pNode,
                               MLibListNode_t *pNewNode )
 {
-    MLibListNode_t *pNextNode; /* 次ノード */
+    MLibRet_t      ret;         /* 戻り値   */
+    MLibListNode_t *pNextNode;  /* 次ノード */
 
     /* 初期化 */
+    ret       = MLIB_RET_FAILURE;
     pNextNode = NULL;
 
     /* 先頭指定チェック */
@@ -124,56 +134,57 @@ MLibRet_t MLibListInsertNext( MLibList_t     *pList,
         return MLibListInsertHead( pList, pNewNode );
     }
 
-    /* 引数pListチェック */
-    if ( pList == NULL ) {
+    /* パラメータチェック */
+    if ( ( pList    == NULL ) ||
+         ( pNewNode == NULL )    ) {
         /* 不正値 */
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
-    /* 引数pNewNodeチェック */
-    if ( pNewNode == NULL ) {
-        /* 不正値 */
-
-        return MLIB_FAILURE;
-    }
+    /* スピンロック */
+    MLibSpinLock( &( pList->lock ), NULL );
 
     /* 連結リストサイズチェック */
-    if ( ( pList->size == 0 ) || ( pList->size == SIZE_MAX ) ) {
-        /* サイズ不正 */
+    if ( ( pList->size != 0 ) && ( pList->size != SIZE_MAX ) ) {
+        /* 1つ以上ノード有かつ空き有 */
 
-        return MLIB_FAILURE;
+        /* 次ノード取得 */
+        pNextNode = pNode->pNext;
+
+        /* 前ノード設定 */
+        pNode->pNext = pNewNode;
+
+        /* 挿入ノード設定 */
+        pNewNode->pList = pList;
+        pNewNode->pPrev = pNode;
+        pNewNode->pNext = pNextNode;
+
+        /* 次ノード有無判定 */
+        if ( pNextNode == NULL ) {
+            /* 次ノード無 */
+
+            /* 連結リスト最後尾ノード設定 */
+            pList->pTail = pNewNode;
+
+        } else {
+            /* 次ノード有 */
+
+            /* 次ノード設定 */
+            pNextNode->pPrev = pNewNode;
+        }
+
+        /* 連結リストサイズ設定 */
+        pList->size++;
+
+        /* 戻り値設定 */
+        ret = MLIB_RET_SUCCESS;
     }
 
-    /* 次ノード取得 */
-    pNextNode = pNode->pNext;
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pList->lock ), NULL );
 
-    /* 前ノード設定 */
-    pNode->pNext = pNewNode;
-
-    /* 挿入ノード設定 */
-    pNewNode->pList = pList;
-    pNewNode->pPrev = pNode;
-    pNewNode->pNext = pNextNode;
-
-    /* 次ノード有無判定 */
-    if ( pNextNode == NULL ) {
-        /* 次ノード無 */
-
-        /* 連結リスト最後尾ノード設定 */
-        pList->pTail = pNewNode;
-
-    } else {
-        /* 次ノード有 */
-
-        /* 次ノード設定 */
-        pNextNode->pPrev = pNewNode;
-    }
-
-    /* 連結リストサイズ設定 */
-    pList->size++;
-
-    return MLIB_SUCCESS;
+    return ret;
 }
 
 
@@ -182,22 +193,26 @@ MLibRet_t MLibListInsertNext( MLibList_t     *pList,
  * @brief       ノード前挿入
  * @details     指定したノードの前に新しいノードを挿入する。
  *
- * @param[in]   *pList      連結リスト
- * @param[in]   *pNode      挿入先ノード
- * @param[in]   *pNewNode   挿入ノード
+ * @param[in]   *pList    連結リスト
+ * @param[in]   *pNode    挿入先ノード
+ * @param[in]   *pNewNode 挿入ノード
  *
  * @return      処理結果を返す。
- * @retval      MLIB_SUCCESS 正常終了
- * @retval      MLIB_FAILURE 異常終了
+ * @retval      MLIB_RET_SUCCESS 正常終了
+ * @retval      MLIB_RET_FAILURE 異常終了
+ *
+ * @note        本関数はスピンロックを用いて排他制御する。
  */
 /******************************************************************************/
 MLibRet_t MLibListInsertPrev( MLibList_t     *pList,
                               MLibListNode_t *pNode,
                               MLibListNode_t *pNewNode )
 {
-    MLibListNode_t *pPrevNode; /* 前ノード */
+    MLibRet_t      ret;         /* 戻り値   */
+    MLibListNode_t *pPrevNode;  /* 前ノード */
 
     /* 初期化 */
+    ret       = MLIB_RET_FAILURE;
     pPrevNode = NULL;
 
     /* 最後尾指定チェック */
@@ -207,56 +222,57 @@ MLibRet_t MLibListInsertPrev( MLibList_t     *pList,
         return MLibListInsertTail( pList, pNewNode );
     }
 
-    /* 引数pListチェック */
-    if ( pList == NULL ) {
+    /* パラメータチェック */
+    if ( ( pList    == NULL ) ||
+         ( pNewNode == NULL )    ) {
         /* 不正値 */
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
-    /* 引数pNewNodeチェック */
-    if ( pNewNode == NULL ) {
-        /* 不正値 */
-
-        return MLIB_FAILURE;
-    }
+    /* スピンロック */
+    MLibSpinLock( &( pList->lock ), NULL );
 
     /* 連結リストサイズチェック */
-    if ( ( pList->size == 0 ) || ( pList->size == SIZE_MAX ) ) {
-        /* サイズ不正 */
+    if ( ( pList->size != 0 ) && ( pList->size != SIZE_MAX ) ) {
+        /* 1つ以上ノード有かつ空き有 */
 
-        return MLIB_FAILURE;
+        /* 前ノード取得 */
+        pPrevNode = pNode->pPrev;
+
+        /* 次ノード設定 */
+        pNode->pPrev = pNewNode;
+
+        /* 挿入ノード設定 */
+        pNewNode->pList = pList;
+        pNewNode->pNext = pNode;
+        pNewNode->pPrev = pPrevNode;
+
+        /* 前ノード有無判定 */
+        if ( pPrevNode == NULL ) {
+            /* 前ノード無 */
+
+            /* 連結リスト先頭ノード設定 */
+            pList->pHead = pNewNode;
+
+        } else {
+            /* 前ノード有 */
+
+            /* 前ノード設定 */
+            pPrevNode->pNext = pNewNode;
+        }
+
+        /* 連結リストサイズ設定 */
+        pList->size++;
+
+        /* 戻り値設定 */
+        ret = MLIB_RET_SUCCESS;
     }
 
-    /* 前ノード取得 */
-    pPrevNode = pNode->pPrev;
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pList->lock ), NULL );
 
-    /* 次ノード設定 */
-    pNode->pPrev = pNewNode;
-
-    /* 挿入ノード設定 */
-    pNewNode->pList = pList;
-    pNewNode->pNext = pNode;
-    pNewNode->pPrev = pPrevNode;
-
-    /* 前ノード有無判定 */
-    if ( pPrevNode == NULL ) {
-        /* 前ノード無 */
-
-        /* 連結リスト先頭ノード設定 */
-        pList->pHead = pNewNode;
-
-    } else {
-        /* 前ノード有 */
-
-        /* 前ノード設定 */
-        pPrevNode->pNext = pNewNode;
-    }
-
-    /* 連結リストサイズ設定 */
-    pList->size++;
-
-    return MLIB_SUCCESS;
+    return ret;
 }
 
 
@@ -265,72 +281,77 @@ MLibRet_t MLibListInsertPrev( MLibList_t     *pList,
  * @brief       ノード最後尾挿入
  * @details     指定した連結リストの最後尾に新しいノードを挿入する。
  *
- * @param[in]   *pList      連結リスト
- * @param[in]   *pNewNode   挿入ノード
+ * @param[in]   *pList    連結リスト
+ * @param[in]   *pNewNode 挿入ノード
  *
  * @return      処理結果を返す。
- * @retval      MLIB_SUCCESS 正常終了
- * @retval      MLIB_FAILURE 異常終了
+ * @retval      MLIB_RET_SUCCESS 正常終了
+ * @retval      MLIB_RET_FAILURE 異常終了
+ *
+ * @note        本関数はスピンロックを用いて排他制御する。
  */
 /******************************************************************************/
 MLibRet_t MLibListInsertTail( MLibList_t     *pList,
                               MLibListNode_t *pNewNode )
 {
-    MLibListNode_t *pOldTail;  /* 最後尾ノード */
+    MLibRet_t      ret;         /* 戻り値       */
+    MLibListNode_t *pOldTail;   /* 最後尾ノード */
 
     /* 初期化 */
+    ret      = MLIB_RET_FAILURE;
     pOldTail = NULL;
 
-    /* 引数pListチェック */
-    if ( pList == NULL ) {
+    /* パラメータチェック */
+    if ( ( pList    == NULL ) ||
+         ( pNewNode == NULL )    ) {
         /* 不正値 */
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
-    /* 引数pNewNodeチェック */
-    if ( pNewNode == NULL ) {
-        /* 不正値 */
-
-        return MLIB_FAILURE;
-    }
+    /* スピンロック */
+    MLibSpinLock( &( pList->lock ), NULL );
 
     /* 連結リストサイズチェック */
-    if ( pList->size == SIZE_MAX ) {
-        /* サイズ不正 */
+    if ( pList->size != SIZE_MAX ) {
+        /* 空き有 */
 
-        return MLIB_FAILURE;
+        /* 旧最後尾ノード取得 */
+        pOldTail = pList->pTail;
+
+        /* 連結リスト最後尾ノード設定 */
+        pList->pTail = pNewNode;
+
+        /* 挿入ノード設定 */
+        pNewNode->pList = pList;
+        pNewNode->pNext = NULL;
+        pNewNode->pPrev = pOldTail;
+
+        /* 旧最後尾ノード有無判定 */
+        if ( pOldTail == NULL ) {
+            /* 旧最後尾ノード無 */
+
+            /* 連結リスト先頭ノード設定 */
+            pList->pHead = pNewNode;
+
+        } else {
+            /* 旧最後尾ノード有 */
+
+            /* 旧最後尾ノード設定 */
+            pOldTail->pNext = pNewNode;
+        }
+
+        /* 連結リストサイズ設定 */
+        pList->size++;
+
+        /* 戻り値設定 */
+        ret = MLIB_RET_SUCCESS;
     }
 
-    /* 旧最後尾ノード取得 */
-    pOldTail = pList->pTail;
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pList->lock ), NULL );
 
-    /* 連結リスト最後尾ノード設定 */
-    pList->pTail = pNewNode;
-
-    /* 挿入ノード設定 */
-    pNewNode->pList = pList;
-    pNewNode->pNext = NULL;
-    pNewNode->pPrev = pOldTail;
-
-    /* 旧最後尾ノード有無判定 */
-    if ( pOldTail == NULL ) {
-        /* 旧最後尾ノード無 */
-
-        /* 連結リスト先頭ノード設定 */
-        pList->pHead = pNewNode;
-
-    } else {
-        /* 旧最後尾ノード有 */
-
-        /* 旧最後尾ノード設定 */
-        pOldTail->pNext = pNewNode;
-    }
-
-    /* 連結リストサイズ設定 */
-    pList->size++;
-
-    return MLIB_SUCCESS;
+    return ret;
 }
 
 

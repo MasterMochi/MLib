@@ -1,7 +1,9 @@
 /******************************************************************************/
-/* src/Split/SplitTerm.c                                                      */
-/*                                                                 2019/01/13 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                            */
+/* src/Split/SplitGet.c                                                       */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2019-2020 Mochi.                                             */
+/*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
 /* インクルード                                                               */
@@ -25,49 +27,49 @@
  * @param[in]   *pHandle ハンドル
  * @param[in]   idx      インデックス
  * @param[out]  **ppStr  分割文字列
- * @param[out]  *pErrNo  エラー番号
- *                  - MLIB_SPLIT_ERR_NONE  エラー無し
- *                  - MLIB_SPLIT_ERR_PARAM パラメータエラー
- *                  - MLIB_SPLIT_ERR_NOIDX インデックス無効エラー
+ * @param[out]  *pErr    エラー要因
+ *                  - MLIB_ERR_NONE  エラー無し
+ *                  - MLIB_ERR_PARAM パラメータ不正
+ *                  - MLIB_ERR_INDEX インデックス無効
  *
  * @return      処理結果を返す。
- * @retval      MLIB_SUCCESS 成功
- * @retval      MLIB_FAILURE 失敗
+ * @retval      MLIB_RET_SUCCESS 成功
+ * @retval      MLIB_RET_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibSplitGet( MLibSplitHandle_t *pHandle,
-                        uint32_t          idx,
-                        char              **ppStr,
-                        uint32_t          *pErrNo   )
+MLibRet_t MLibSplitGet( MLibSplit_t *pHandle,
+                        uint32_t    idx,
+                        char        **ppStr,
+                        MLibErr_t   *pErr     )
 {
+    /* エラー要因初期化 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
+
     /* パラメータ判定 */
     if ( ( pHandle == NULL ) ||
          ( ppStr   == NULL )    ) {
         /* 不正 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_PARAM );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
     /* インデックス判定 */
     if ( pHandle->num <= idx ) {
         /* 無効 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_NOIDX );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_INDEX );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
     /* 分割文字列設定 */
     *ppStr = pHandle->ppStr[ idx ];
 
-    /* エラー番号設定 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_NONE );
-
-    return MLIB_SUCCESS;
+    return MLIB_RET_SUCCESS;
 }
 
 
@@ -78,48 +80,48 @@ MLibRet_t MLibSplitGet( MLibSplitHandle_t *pHandle,
  *
  * @param[in]   *pHandle ハンドル
  * @param[out]  **ppStr  分割文字列
- * @param[out]  *pErrNo  エラー番号
- *                  - MLIB_SPLIT_ERR_NONE  エラー無し
- *                  - MLIB_SPLIT_ERR_PARAM パラメータエラー
- *                  - MLIB_SPLIT_ERR_NOIDX インデックス無効エラー
+ * @param[out]  *pErr    エラー要因
+ *                  - MLIB_ERR_NONE  エラー無し
+ *                  - MLIB_ERR_PARAM パラメータ不正
+ *                  - MLIB_ERR_INDEX インデックス無効
  *
  * @return      処理結果を返す。
- * @retval      MLIB_SUCCESS 成功
- * @retval      MLIB_FAILURE 失敗
+ * @retval      MLIB_RET_SUCCESS 成功
+ * @retval      MLIB_RET_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibSplitGetNext( MLibSplitHandle_t *pHandle,
-                            char              **ppStr,
-                            uint32_t          *pErrNo   )
+MLibRet_t MLibSplitGetNext( MLibSplit_t *pHandle,
+                            char        **ppStr,
+                            MLibErr_t   *pErr     )
 {
+    /* エラー要因初期化 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
+
     /* パラメータ判定 */
     if ( ( pHandle == NULL ) ||
          ( ppStr   == NULL )    ) {
         /* 不正 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_PARAM );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
     /* インデックス判定 */
     if ( pHandle->num <= pHandle->idx ) {
         /* 無効 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_NOIDX );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_INDEX );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
     /* 分割文字列設定 */
     *ppStr = pHandle->ppStr[ pHandle->idx++ ];
 
-    /* エラー番号設定 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_NONE );
-
-    return MLIB_SUCCESS;
+    return MLIB_RET_SUCCESS;
 }
 
 
@@ -130,37 +132,37 @@ MLibRet_t MLibSplitGetNext( MLibSplitHandle_t *pHandle,
  *
  * @param[in]   *pHandle ハンドル
  * @param[out]  *pNum    分割文字列数
- * @param[out]  *pErrNo  エラー番号
- *                  - MLIB_SPLIT_ERR_NONE  エラー無し
- *                  - MLIB_SPLIT_ERR_PARAM パラメータエラー
+ * @param[out]  *pErr    エラー要因
+ *                  - MLIB_ERR_NONE  エラー無し
+ *                  - MLIB_ERR_PARAM パラメータ不正
  *
  * @return      処理結果を返す。
- * @retval      MLIB_SUCCESS 成功
- * @retval      MLIB_FAILURE 失敗
+ * @retval      MLIB_RET_SUCCESS 成功
+ * @retval      MLIB_RET_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibSplitGetNum( MLibSplitHandle_t *pHandle,
-                           size_t            *pNum,
-                           uint32_t          *pErrNo   )
+MLibRet_t MLibSplitGetNum( MLibSplit_t *pHandle,
+                           size_t      *pNum,
+                           MLibErr_t   *pErr     )
 {
+    /* エラー要因設定 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
+
     /* パラメータ判定 */
     if ( ( pHandle == NULL ) ||
          ( pNum    == NULL )    ) {
         /* 不正 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_PARAM );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
     /* 分割文字列数設定 */
     *pNum = pHandle->num;
 
-    /* エラー番号設定 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_NONE );
-
-    return MLIB_SUCCESS;
+    return MLIB_RET_SUCCESS;
 }
 
 

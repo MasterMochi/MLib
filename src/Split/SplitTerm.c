@@ -1,7 +1,9 @@
 /******************************************************************************/
+/*                                                                            */
 /* src/Split/SplitTerm.c                                                      */
-/*                                                                 2019/01/13 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2019-2020 Mochi.                                             */
+/*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
 /* インクルード                                                               */
@@ -23,35 +25,35 @@
  * @details         分割した文字列の操作用ハンドルを解放する。
  *
  * @param[in,out]   **ppHandle ハンドル
- * @param[out]      *pErrNo    エラー番号
- *                             - MLIB_SPLIT_ERR_NONE  エラー無し
- *                             - MLIB_SPLIT_ERR_PARAM パラメータエラー
+ * @param[out]      *pErr      エラー要因
+ *                             - MLIB_ERR_NONE  エラー無し
+ *                             - MLIB_ERR_PARAM パラメータ不正
  *
  * @return          処理結果を返す。
- * @retval          MLIB_SUCCESS 成功
- * @retval          MLIB_FAILURE 失敗
+ * @retval          MLIB_RET_SUCCESS 成功
+ * @retval          MLIB_RET_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibSplitTerm( MLibSplitHandle_t **ppHandle,
-                         uint32_t          *pErrNo     )
+MLibRet_t MLibSplitTerm( MLibSplit_t **ppHandle,
+                         MLibErr_t   *pErr       )
 {
+    /* エラー要因設定 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
+
     /* パラメータ判定 */
     if ( ppHandle == NULL ) {
         /* 不正 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_PARAM );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
 
     /* ハンドル解放 */
     free( *ppHandle );
 
-    /* エラー番号設定 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_SPLIT_ERR_NONE );
-
-    return MLIB_SUCCESS;
+    return MLIB_RET_SUCCESS;
 }
 
 

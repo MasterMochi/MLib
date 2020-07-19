@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/State/StateSet.c                                                       */
-/*                                                                 2019/06/21 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/07/19 */
+/* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -11,6 +11,7 @@
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
 #include <MLib/MLibState.h>
+#include <MLib/MLibSpin.h>
 
 
 /******************************************************************************/
@@ -18,44 +19,50 @@
 /******************************************************************************/
 /******************************************************************************/
 /**
- * @brief         状態設定
- * @details       状態遷移ハンドル(*pHandle)が管理する状態遷移に状態(state)を設
- *                定する。
+ * @brief           状態設定
+ * @details         状態を設定する。
  *
- * @param[in/out] *pHandle 状態遷移ハンドル
- * @param[in]     state    状態
- * @param[out]    *pErrNo  エラー番号
- *                    - MLIB_STATE_ERR_NONE  エラー無し
- *                    - MLIB_STATE_ERR_PARAM パラメータエラー
+ * @param[in/out]   *pHandle 状態遷移ハンドル
+ * @param[in]       state    状態
+ * @param[out]      *pErr    エラー要因
+ *                      - MLIB_ERR_NONE  エラー無し
+ *                      - MLIB_ERR_PARAM パラメータ不正
  *
- * @return        処理結果を返す。
- * @retval        MLIB_SUCCESS 正常終了
- * @retval        MLIB_FAILURE 異常終了
+ * @return          処理結果を返す。
+ * @retval          MLIB_RET_SUCCESS 正常終了
+ * @retval          MLIB_RET_FAILURE 異常終了
+ *
+ * @note            本関数はスピンロックを用いて排他する。
  */
 /******************************************************************************/
-MLibRet_t MLibStateSet( MLibStateHandle_t *pHandle,
-                        MLibState_t       state,
-                        uint32_t          *pErrNo   )
+MLibRet_t MLibStateSet( MLibState_t   *pHandle,
+                        MLibStateNo_t state,
+                        MLibErr_t     *pErr     )
 {
-    /* 初期化 */
-    MLIB_SET_IFNOT_NULL( pErrNo, MLIB_STATE_ERR_NONE );
+    /* エラー要因初期化 */
+    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
 
     /* 状態遷移ハンドルチェック */
     if ( pHandle == NULL ) {
         /* 不正 */
 
-        /* エラー番号設定 */
-        MLIB_SET_IFNOT_NULL( pErrNo, MLIB_STATE_ERR_PARAM );
+        /* エラー要因設定 */
+        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
 
-        return MLIB_FAILURE;
+        return MLIB_RET_FAILURE;
     }
+
+    /* スピンロック */
+    MLibSpinLock( &( pHandle->lock ), NULL );
 
     /* 状態設定 */
     pHandle->state = state;
 
-    return MLIB_SUCCESS;
+    /* スピンアンロック */
+    MLibSpinUnlock( &( pHandle-> lock ), NULL );
+
+    return MLIB_RET_SUCCESS;
 }
 
 
 /******************************************************************************/
-
