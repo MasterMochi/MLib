@@ -22,7 +22,7 @@
  * @brief           状態設定
  * @details         状態を設定する。
  *
- * @param[in/out]   *pHandle 状態遷移ハンドル
+ * @param[in]       *pHandle 状態遷移ハンドル
  * @param[in]       state    状態
  * @param[out]      *pErr    エラー要因
  *                      - MLIB_ERR_NONE  エラー無し

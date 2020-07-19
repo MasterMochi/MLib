@@ -32,7 +32,7 @@
  * @brief         状態遷移初期化
  * @details       状態遷移ハンドルを初期化する。
  *
- * @param[in/out] *pHandle  状態遷移ハンドル
+ * @param[in,out] *pHandle  状態遷移ハンドル
  * @param[in]     *pTable   状態遷移表
  * @param[in]     tableSize 状態遷移表サイズ
  * @param[in]     state     初期状態

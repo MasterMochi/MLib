@@ -41,7 +41,7 @@ static MLibRet_t ExecTask( MLibState_t                 *pHandle,
  * @details         状態遷移表に従って状態とイベントに対応する状態遷移タスクを
  *                  実行する。
  *
- * @param[in/out]   *pHandle    状態遷移ハンドル
+ * @param[in]       *pHandle    状態遷移ハンドル
  * @param[in]       event       イベント番号
  * @param[in]       *pArg       状態遷移タスク引数
  * @param[out]      *pPrevState 遷移前状態
@@ -112,7 +112,7 @@ MLibRet_t MLibStateExec( MLibState_t      *pHandle,
  * @details         状態遷移表に従って状態とイベントに対応する状態遷移タスクを
  *                  実行する。
  *
- * @param[in/out]   *pHandle    状態遷移ハンドル
+ * @param[in]       *pHandle    状態遷移ハンドル
  * @param[in]       event       イベント番号
  * @param[in]       *pArg       状態遷移タスク引数
  * @param[out]      *pPrevState 遷移前状態
@@ -167,7 +167,7 @@ static MLibRet_t Exec( MLibState_t      *pHandle,
  * @details         状態遷移に登録されたタスクを起動する。遷移先状態が状態遷移
  *                  表通りか判定する。
  *
- * @param[in/out]   *pHandle     状態遷移ハンドル
+ * @param[in]       *pHandle     状態遷移ハンドル
  * @param[in]       *pTransition 状態遷移
  * @param[in]       *pArg        状態遷移タスク引数
  * @param[out]      *pNextState  遷移先状態
