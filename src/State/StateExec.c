@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/State/StateExec.c                                                      */
-/*                                                                 2020/07/19 */
+/*                                                                 2020/08/22 */
 /* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
@@ -133,24 +133,26 @@ static MLibRet_t Exec( MLibState_t      *pHandle,
                        MLibStateNo_t    *pNextState,
                        MLibErr_t        *pErr        )
 {
-    uint32_t idx;   /* 状態遷移表インデックス */
+    uint32_t                    idx;      /* 状態遷移表インデックス */
+    const MLibStateTransition_t *pEntry;  /* 状態遷移表エントリ     */
 
     /* 初期化 */
-    idx = 0;
+    idx    = 0;
+    pEntry = NULL;
 
     /* 全状態遷移毎に繰り返し */
     for ( idx = 0; idx < pHandle->transitionNum; idx++ ) {
+        /* 状態遷移表エントリ参照先設定 */
+        pEntry = &( pHandle->pTable[ idx ] );
+
         /* 該当状態遷移判定 */
-        if ( ( pHandle->state == pHandle->pTable[ idx ].state ) &&
-             ( event          == pHandle->pTable[ idx ].event )    ) {
+        if ( (   pEntry->state == pHandle->state             ) &&
+             ( ( pEntry->event == event                 ) ||
+               ( pEntry->event == MLIB_STATE_EVENT_NULL )    )    ) {
             /* 一致 */
 
             /* 状態遷移タスク実行 */
-            return ExecTask( pHandle,
-                             &( pHandle->pTable[ idx ] ),
-                             pArg,
-                             pNextState,
-                             pErr                         );
+            return ExecTask( pHandle, pEntry, pArg, pNextState, pErr );
         }
     }
 
