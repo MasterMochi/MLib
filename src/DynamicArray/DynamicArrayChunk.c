@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/DynamicArray/DynamicArrayChunk.c                                       */
-/*                                                                 2019/10/09 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/12/31 */
+/* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -10,12 +10,11 @@
 /******************************************************************************/
 /* 標準ヘッダ */
 #include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
 
 /* ライブラリヘッダ */
 #include <MLib/MLibList.h>
 #include <MLib/MLibDynamicArray.h>
+#include <MLib/MLibWrapper.h>
 
 /* モジュールヘッダ */
 #include "DynamicArrayChunk.h"
@@ -84,7 +83,7 @@ Chunk_t *ChunkAdd( MLibDynamicArray_t *pHandle,
     }
 
     /* チャンク割当 */
-    pChunk = malloc( size );
+    pChunk = MLibWrapperMalloc( size );
 
     /* 割当結果判定 */
     if ( pChunk == NULL ) {
@@ -97,7 +96,7 @@ Chunk_t *ChunkAdd( MLibDynamicArray_t *pHandle,
     }
 
     /* チャンク初期化 */
-    memset( pChunk, 0, size );
+    MLibWrapperMemset( pChunk, 0, size );
 
     /* チャンク内エントリ毎に繰り返す */
     for ( localIdx = 0;

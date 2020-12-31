@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/Split/SplitTerm.c                                                      */
-/*                                                                 2020/07/19 */
+/*                                                                 2020/12/20 */
 /* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
@@ -14,6 +14,7 @@
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
 #include <MLib/MLibSplit.h>
+#include <MLib/MLibWrapper.h>
 
 
 /******************************************************************************/
@@ -51,7 +52,7 @@ MLibRet_t MLibSplitTerm( MLibSplit_t **ppHandle,
     }
 
     /* ハンドル解放 */
-    free( *ppHandle );
+    MLibWrapperFree( *ppHandle );
 
     return MLIB_RET_SUCCESS;
 }

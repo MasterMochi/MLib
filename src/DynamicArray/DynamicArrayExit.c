@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/DynamicArray/DynamicArrayExit.c                                        */
-/*                                                                 2019/09/24 */
-/* Copyright (C) 2019 Mochi.                                                  */
+/*                                                                 2020/12/20 */
+/* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -15,6 +15,7 @@
 
 /* ライブラリヘッダ */
 #include <MLib/MLibDynamicArray.h>
+#include <MLib/MLibWrapper.h>
 
 /* モジュールヘッダ */
 #include "DynamicArrayChunk.h"
@@ -71,11 +72,11 @@ MLibRet_t MLibDynamicArrayExit( MLibDynamicArray_t **ppHandle,
         }
 
         /* チャンク解放 */
-        free( pChunk );
+        MLibWrapperFree( pChunk );
     }
 
     /* ハンドル解放 */
-    free( *ppHandle );
+    MLibWrapperFree( *ppHandle );
     *ppHandle = NULL;
 
     return MLIB_RET_SUCCESS;

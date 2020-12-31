@@ -1,19 +1,16 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferExit.c                                            */
-/*                                                                 2020/03/02 */
+/*                                                                 2020/12/31 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
 /* インクルード                                                               */
 /******************************************************************************/
-/* 標準ヘッダ */
-#include <stdlib.h>
-#include <string.h>
-
 /* ライブラリヘッダ */
 #include <MLib/MLibRingBuffer.h>
+#include <MLib/MLibWrapper.h>
 
 
 /******************************************************************************/
@@ -51,10 +48,10 @@ MLibRet_t MLibRingBufferExit( MLibRingBuffer_t *pHandle,
     }
 
     /* バッファ解放 */
-    free( pHandle->pBuffer );
+    MLibWrapperFree( pHandle->pBuffer );
 
     /* ハンドル初期化 */
-    memset( pHandle, 0, sizeof ( MLibRingBuffer_t ) );
+    MLibWrapperMemset( pHandle, 0, sizeof ( MLibRingBuffer_t ) );
 
     return MLIB_RET_SUCCESS;
 }

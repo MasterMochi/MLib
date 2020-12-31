@@ -1,7 +1,7 @@
 #******************************************************************************#
 #*                                                                            *#
 #* src/Makefile                                                               *#
-#*                                                                 2020/07/19 *#
+#*                                                                 2020/12/31 *#
 #* Copyright (C) 2018-2020 Mochi.                                             *#
 #*                                                                            *#
 #******************************************************************************#
@@ -9,7 +9,9 @@
 #* 設定                                                                       *#
 #******************************************************************************#
 # ライブラリ
-LIB = libMLib
+LIB    = libMLib
+# ライブラリ(フリースタンディング環境版)
+LIB_FE = libMLib_fe
 
 # ソースコード
 SRCS  = DynamicArray/DynamicArrayAlloc.c
@@ -40,6 +42,14 @@ SRCS += State/StateInit.c
 SRCS += State/StateExec.c
 SRCS += State/StateGet.c
 SRCS += State/StateSet.c
+SRCS += Util/UtilCmpString.c
+SRCS += Util/UtilCopyMemory.c
+SRCS += Util/UtilSetMemory.c
+SRCS += Wrapper/WrapperFree.c
+SRCS += Wrapper/WrapperInit.c
+SRCS += Wrapper/WrapperMalloc.c
+SRCS += Wrapper/WrapperMemcpy.c
+SRCS += Wrapper/WrapperMemset.c
 
 # ビルドディレクトリ
 BUILD_DIR   = ../build
@@ -47,6 +57,8 @@ BUILD_DIR   = ../build
 RELEASE_DIR = $(BUILD_DIR)/release
 # オブジェクトディレクトリ
 OBJ_DIR     = $(BUILD_DIR)/obj
+# オブジェクトディレクトリ(フリースタンディング環境版)
+OBJ_DIR_FE  = $(BUILD_DIR)/obj_fe
 
 # Cフラグ
 CFLAGS  = -O
@@ -64,35 +76,46 @@ CFLAGS += -I$(BUILD_DIR)/include
 #* 定義                                                                       *#
 #******************************************************************************#
 # オブジェクトサブディレクトリ
-OBJ_SUBDIRS = $(sort $(addprefix $(OBJ_DIR)/, $(dir $(SRCS))))
+OBJ_SUBDIRS    = $(sort $(addprefix $(OBJ_DIR)/,    $(dir $(SRCS))))
+OBJ_SUBDIRS_FE = $(sort $(addprefix $(OBJ_DIR_FE)/, $(dir $(SRCS))))
 
 # オブジェクトファイル
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
+OBJS    = $(addprefix $(OBJ_DIR)/,    $(SRCS:.c=.o))
+OBJS_FE = $(addprefix $(OBJ_DIR_FE)/, $(SRCS:.c=.o))
 
 # 依存関係ファイル
-DEPS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.d))
+DEPS    = $(addprefix $(OBJ_DIR)/,    $(SRCS:.c=.d))
+DEPS_FE = $(addprefix $(OBJ_DIR_FE)/, $(SRCS:.c=.d))
 
 
 #******************************************************************************#
 #* phonyターゲット                                                            *#
 #******************************************************************************#
 .PHONY: all
-all: $(OBJ_SUBDIRS) $(RELEASE_DIR)/$(LIB).a Makefile
+all: $(OBJ_SUBDIRS) $(OBJ_SUBDIRS_FE) $(RELEASE_DIR)/$(LIB).a $(RELEASE_DIR)/$(LIB_FE).a Makefile
 
 .PHONY: clean
 clean:
 	-rm -rf $(RELEASE_DIR)/$(LIB).a
+	-rm -rf $(RELEASE_DIR)/$(LIB_FE).a
 	-rm -rf $(OBJ_DIR)
+	-rm -rf $(OBJ_DIR_FE)
+
 
 #******************************************************************************#
 #* 生成規則                                                                   *#
 #******************************************************************************#
 # 依存関係
 -include $(DEPS)
+-include $(DEPS_FE)
 
 # オブジェクトサブディレクトリ
 ifdef OBJ_SUBDIRS
 $(OBJ_SUBDIRS):
+	mkdir -p $@
+endif
+ifdef OBJ_SUBDIRS_FE
+$(OBJ_SUBDIRS_FE):
 	mkdir -p $@
 endif
 
@@ -101,13 +124,22 @@ $(RELEASE_DIR)/$(LIB).a: $(OBJS) Makefile
 	$(AR) rcs $(OBJ_DIR)/$(LIB).a $(OBJS)
 	ln -srf $(OBJ_DIR)/$(LIB).a $@
 
+# ライブラリ(フリースタンディング環境版)
+$(RELEASE_DIR)/$(LIB_FE).a: $(OBJS_FE) Makefile
+	$(AR) rcs $(OBJ_DIR_FE)/$(LIB_FE).a $(OBJS_FE)
+	ln -srf $(OBJ_DIR_FE)/$(LIB_FE).a $@
+
 # アセンブラファイルコンパイル
 $(OBJ_DIR)/%.o: %.s Makefile
+	$(AS) -o $@ $<
+$(OBJ_DIR_FE)/%.o: %.s Makefile
 	$(AS) -o $@ $<
 
 # Cファイルコンパイル
 $(OBJ_DIR)/%.o: %.c Makefile
 	$(CC) $(CFLAGS) -o $@ -c $< -MD -MP
+$(OBJ_DIR_FE)/%.o: %.c Makefile
+	$(CC) $(CFLAGS) -DMLIB_FE -o $@ -c $< -MD -MP
 
 
 #******************************************************************************#

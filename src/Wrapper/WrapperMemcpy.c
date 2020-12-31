@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*                                                                            */
-/* src/Spin/SpinInit.c                                                        */
+/* src/Wrapper/WrapperMemcpy.c                                                */
 /*                                                                 2020/12/31 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
@@ -9,49 +9,32 @@
 /* インクルード                                                               */
 /******************************************************************************/
 /* ライブラリヘッダ */
-#include <MLib/MLibSpin.h>
 #include <MLib/MLibWrapper.h>
+
+/* モジュールヘッダ */
+#include "WrapperInit.h"
 
 
 /******************************************************************************/
-/* グローバル関数定義                                                         */
+/* ライブラリ関数定義                                                         */
 /******************************************************************************/
 /******************************************************************************/
 /**
- * @brief       スピンロック初期化
- * @details     スピンロックのハンドルを初期化する。
+ * @brief       memcpyラッパー
+ * @details     ラッパー関数テーブルに従ってmemcpy関数を呼び出す。
  *
- * @param[in]   *pHandle スピンロックハンドル
- * @param[out]  *pErr    エラー要因
- *                  - MLIB_ERR_NONE  エラー無し
- *                  - MLIB_ERR_PARAM パラメータ不正
+ * @param[in]   *pDst コピー先アドレス
+ * @param[in]   *pSrc コピー元アドレス
+ * @param[in]   size  コピーサイズ
  *
- * @return      初期化結果を返す。
- * @retval      MLIB_RET_SUCCESS 成功
- * @retval      MLIB_RET_FAILURE 失敗
+ * @return      コピー先アドレスを返す。
  */
 /******************************************************************************/
-MLibRet_t MLibSpinInit( MLibSpin_t *pHandle,
-                        MLibErr_t  *pErr     )
+void *MLibWrapperMemcpy( void       *pDst,
+                         const void *pSrc,
+                         size_t     size   )
 {
-    /* エラー要因初期化 */
-    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
-
-    /* パラメータチェック */
-    if ( pHandle == NULL ) {
-        /* 不正 */
-
-        /* エラー要因設定 */
-        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
-
-        return MLIB_RET_FAILURE;
-    }
-
-    /* ハンドル初期化 */
-    MLibWrapperMemset( pHandle, 0, sizeof ( MLibSpin_t ) );
-    pHandle->lock = MLIB_SPIN_UNLOCKED;
-
-    return MLIB_RET_SUCCESS;
+    return ( gWrapperFunc.pMemcpy )( pDst, pSrc, size );
 }
 
 

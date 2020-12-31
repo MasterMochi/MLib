@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/DynamicArray/DynamicArrayInit.c                                        */
-/*                                                                 2020/07/19 */
+/*                                                                 2020/12/31 */
 /* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
@@ -10,12 +10,11 @@
 /******************************************************************************/
 /* 標準ヘッダ */
 #include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
 
 /* ライブラリヘッダ */
 #include <MLib/MLibList.h>
 #include <MLib/MLibDynamicArray.h>
+#include <MLib/MLibWrapper.h>
 
 
 /******************************************************************************/
@@ -68,7 +67,7 @@ MLibRet_t MLibDynamicArrayInit( MLibDynamicArray_t **ppHandle,
     }
 
     /* ハンドル割当 */
-    *ppHandle = malloc( sizeof ( MLibDynamicArray_t ) );
+    *ppHandle = MLibWrapperMalloc( sizeof ( MLibDynamicArray_t ) );
 
     /* 割当結果判定 */
     if ( *ppHandle == NULL ) {
@@ -81,7 +80,7 @@ MLibRet_t MLibDynamicArrayInit( MLibDynamicArray_t **ppHandle,
     }
 
     /* ハンドル初期化 */
-    memset( *ppHandle, 0, sizeof ( MLibDynamicArray_t ) );
+    MLibWrapperMemset( *ppHandle, 0, sizeof ( MLibDynamicArray_t ) );
     ( *ppHandle )->chunkSize   = chunkSize;
     ( *ppHandle )->entrySize   = entrySize;
     ( *ppHandle )->entryMaxNum = entryMaxNum;

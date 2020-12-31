@@ -1,20 +1,17 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferInit.c                                            */
-/*                                                                 2020/07/18 */
+/*                                                                 2020/12/31 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
 /* インクルード                                                               */
 /******************************************************************************/
-/* 標準ヘッダ */
-#include <stdlib.h>
-#include <string.h>
-
 /* ライブラリヘッダ */
 #include <MLib/MLibRingBuffer.h>
 #include <MLib/MLibSpin.h>
+#include <MLib/MLibWrapper.h>
 
 
 /******************************************************************************/
@@ -70,7 +67,7 @@ MLibRet_t MLibRingBufferInit( MLibRingBuffer_t *pHandle,
     pHandle->num        = 0;
     pHandle->pushIdx    = 0;
     pHandle->popIdx     = 0;
-    pHandle->pBuffer    = malloc( pHandle->bufferSize );
+    pHandle->pBuffer    = MLibWrapperMalloc( pHandle->bufferSize );
 
     /* バッファ確保結果判定 */
     if ( pHandle->pBuffer == NULL ) {
@@ -83,7 +80,7 @@ MLibRet_t MLibRingBufferInit( MLibRingBuffer_t *pHandle,
     }
 
     /* バッファ初期化 */
-    memset( pHandle->pBuffer, 0, pHandle->bufferSize );
+    MLibWrapperMemset( pHandle->pBuffer, 0, pHandle->bufferSize );
 
     return MLIB_RET_SUCCESS;
 }

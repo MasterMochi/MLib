@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLib.h                                                    */
-/*                                                                 2020/07/14 */
-/* Copyright (C) 2017-2019 Mochi                                              */
+/*                                                                 2020/12/31 */
+/* Copyright (C) 2017-2020 Mochi                                              */
 /*                                                                            */
 /******************************************************************************/
 #ifndef _MLIB_H_
@@ -21,25 +21,6 @@
 /******************************************************************************/
 /* 定義                                                                       */
 /******************************************************************************/
-/** アライメント計算マクロ */
-#define MLIB_ALIGN( _VALUE, _ALIGNMENT )                                  \
-    ( ( ( _VALUE ) + ( ( _ALIGNMENT ) - 1 ) ) & ~( ( _ALIGNMENT ) - 1 ) )
-
-/** フラグ判定マクロ */
-#define MLIB_HAVE_FLAG( _VALUE, _FLAG )         \
-    ( ( ( _VALUE ) & ( _FLAG ) ) == ( _FLAG ) )
-
-/** 最大値取得マクロ */
-#define MLIB_MAX( _VALUE1, _VALUE2 )                          \
-    ( ( _VALUE1 ) > ( _VALUE2 ) ? ( _VALUE1 ) : ( _VALUE2 ) )
-/** 最小値取得マクロ */
-#define MLIB_MIN( _VALUE1, _VALUE2 )                          \
-    ( ( _VALUE1 ) < ( _VALUE2 ) ? ( _VALUE1 ) : ( _VALUE2 ) )
-
-/** 配列エントリ数マクロ */
-#define MLIB_NUMOF( _ARRAY )                       \
-    ( sizeof ( _ARRAY ) / sizeof ( _ARRAY[ 0 ] ) )
-
 /** 代入マクロ(非NULL条件) */
 #define MLIB_SET_IFNOT_NULL( _PTR, _VALUE ) \
     {                                       \

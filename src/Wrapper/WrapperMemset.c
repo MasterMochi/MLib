@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*                                                                            */
-/* src/Spin/SpinInit.c                                                        */
+/* src/Wrapper/WrapperMemset.c                                                */
 /*                                                                 2020/12/31 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
@@ -9,49 +9,32 @@
 /* インクルード                                                               */
 /******************************************************************************/
 /* ライブラリヘッダ */
-#include <MLib/MLibSpin.h>
 #include <MLib/MLibWrapper.h>
+
+/* モジュールヘッダ */
+#include "WrapperInit.h"
 
 
 /******************************************************************************/
-/* グローバル関数定義                                                         */
+/* ライブラリ関数定義                                                         */
 /******************************************************************************/
 /******************************************************************************/
 /**
- * @brief       スピンロック初期化
- * @details     スピンロックのハンドルを初期化する。
+ * @brief       memsetラッパー
+ * @details     ラッパー関数テーブルに従ってmemset関数を呼び出す。
  *
- * @param[in]   *pHandle スピンロックハンドル
- * @param[out]  *pErr    エラー要因
- *                  - MLIB_ERR_NONE  エラー無し
- *                  - MLIB_ERR_PARAM パラメータ不正
+ * @param[in]   *pAddr 設定先アドレス
+ * @param[in]   value  設定値(1byte)
+ * @param[in]   size   設定サイズ
  *
- * @return      初期化結果を返す。
- * @retval      MLIB_RET_SUCCESS 成功
- * @retval      MLIB_RET_FAILURE 失敗
+ * @return      設定先アドレスを返す。
  */
 /******************************************************************************/
-MLibRet_t MLibSpinInit( MLibSpin_t *pHandle,
-                        MLibErr_t  *pErr     )
+void *MLibWrapperMemset( void   *pAddr,
+                         int    value,
+                         size_t size    )
 {
-    /* エラー要因初期化 */
-    MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
-
-    /* パラメータチェック */
-    if ( pHandle == NULL ) {
-        /* 不正 */
-
-        /* エラー要因設定 */
-        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_PARAM );
-
-        return MLIB_RET_FAILURE;
-    }
-
-    /* ハンドル初期化 */
-    MLibWrapperMemset( pHandle, 0, sizeof ( MLibSpin_t ) );
-    pHandle->lock = MLIB_SPIN_UNLOCKED;
-
-    return MLIB_RET_SUCCESS;
+    return ( gWrapperFunc.pMemset )( pAddr, value, size );
 }
 
 

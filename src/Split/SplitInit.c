@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/Split/SplitInit.c                                                      */
-/*                                                                 2020/07/19 */
+/*                                                                 2020/12/20 */
 /* Copyright (C) 2019-2020 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
@@ -15,6 +15,7 @@
 /* ライブラリヘッダ */
 #include <MLib/MLib.h>
 #include <MLib/MLibSplit.h>
+#include <MLib/MLibWrapper.h>
 
 
 /******************************************************************************/
@@ -93,10 +94,11 @@ MLibRet_t MLibSplitInitByDelimiter( MLibSplit_t **ppHandle,
     }
 
     /* ハンドル生成 */
-    *ppHandle = ( MLibSplit_t * )
-                malloc( sizeof ( MLibSplit_t )                   +
-                        sizeof ( char * ) * ( delimiterNum + 1 ) +
-                        length + delimiterNum + 1                  );
+    *ppHandle =
+        ( MLibSplit_t * )
+        MLibWrapperMalloc( sizeof ( MLibSplit_t )                   +
+                           sizeof ( char * ) * ( delimiterNum + 1 ) +
+                           length + delimiterNum + 1                  );
 
     /* 生成結果判定 */
     if ( *ppHandle == NULL ) {

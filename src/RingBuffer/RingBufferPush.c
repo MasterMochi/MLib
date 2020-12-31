@@ -1,20 +1,17 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/RingBuffer/RingBufferPush.c                                            */
-/*                                                                 2020/07/18 */
+/*                                                                 2020/12/31 */
 /* Copyright (C) 2020 Mochi.                                                  */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
 /* インクルード                                                               */
 /******************************************************************************/
-/* 標準ヘッダ */
-#include <stddef.h>
-#include <string.h>
-
 /* ライブラリヘッダ */
 #include <MLib/MLibRingBuffer.h>
 #include <MLib/MLibSpin.h>
+#include <MLib/MLibWrapper.h>
 
 
 /******************************************************************************/
@@ -174,7 +171,7 @@ static void Push( MLibRingBuffer_t *pHandle,
             pHandle->pushIdx * pHandle->entrySize;
 
     /* バッファ追加 */
-    memcpy( pAddr, pData, pHandle->entrySize );
+    MLibWrapperMemcpy( pAddr, pData, pHandle->entrySize );
 
     /* 追加先インデックス更新 */
     pHandle->pushIdx++;
