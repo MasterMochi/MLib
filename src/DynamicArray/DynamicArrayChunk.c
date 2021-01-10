@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/DynamicArray/DynamicArrayChunk.c                                       */
-/*                                                                 2020/12/31 */
-/* Copyright (C) 2019-2020 Mochi.                                             */
+/*                                                                 2021/01/10 */
+/* Copyright (C) 2019-2021 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -49,7 +49,7 @@ Chunk_t *ChunkAdd( MLibDynamicArray_t *pHandle,
     ChunkEntry_t *pChunkEntry;  /* チャンクエントリ       */
 
     /* 初期化 */
-    size        = sizeof ( ChunkEntry_t ) +
+    size        = sizeof ( Chunk_t ) +
                   pHandle->chunkSize *
                   ( sizeof ( ChunkEntry_t ) + pHandle->entrySize );
     idx         = 0;

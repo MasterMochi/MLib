@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLibDynamicArray.h                                        */
-/*                                                                 2019/10/05 */
-/* Copyright (C) 2017-2019 Mochi                                              */
+/*                                                                 2021/01/10 */
+/* Copyright (C) 2017-2021 Mochi                                              */
 /*                                                                            */
 /******************************************************************************/
 #ifndef _MLIB_DYNAMICARRAY_H_
@@ -75,7 +75,7 @@ extern MLibRet_t MLibDynamicArrayGet(
                      MLibErr_t          *pErr      );
 /* 動的配列初期化 */
 extern MLibRet_t MLibDynamicArrayInit(
-                     MLibDynamicArray_t **ppHandle,
+                     MLibDynamicArray_t *pHandle,
                      size_t             chunkSize,
                      size_t             entrySize,
                      size_t             entryMaxNum,

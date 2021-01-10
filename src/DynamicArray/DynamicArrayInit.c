@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/DynamicArray/DynamicArrayInit.c                                        */
-/*                                                                 2020/12/31 */
-/* Copyright (C) 2019-2020 Mochi.                                             */
+/*                                                                 2021/01/10 */
+/* Copyright (C) 2019-2021 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -25,7 +25,7 @@
  * @brief       動的配列初期化
  * @details     動的配列管理用ハンドルを割り当て、初期化する。
  *
- * @param[out]  **ppHandle  動的配列ハンドル
+ * @param[in]   *pHandle    動的配列ハンドル
  * @param[in]   chunkSize   チャンクサイズ
  * @param[in]   entrySize   エントリサイズ
  * @param[in]   entryMaxNum 最大エントリ数
@@ -39,7 +39,7 @@
  * @retval      MLIB_RET_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibDynamicArrayInit( MLibDynamicArray_t **ppHandle,
+MLibRet_t MLibDynamicArrayInit( MLibDynamicArray_t *pHandle,
                                 size_t             chunkSize,
                                 size_t             entrySize,
                                 size_t             entryMaxNum,
@@ -54,7 +54,7 @@ MLibRet_t MLibDynamicArrayInit( MLibDynamicArray_t **ppHandle,
     MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
 
     /* パラメータチェック */
-    if ( ( ppHandle    == NULL ) ||
+    if ( ( pHandle     == NULL ) ||
          ( chunkSize   == 0    ) ||
          ( entrySize   == 0    ) ||
          ( entryMaxNum == 0    )    ) {
@@ -66,28 +66,15 @@ MLibRet_t MLibDynamicArrayInit( MLibDynamicArray_t **ppHandle,
         return MLIB_RET_FAILURE;
     }
 
-    /* ハンドル割当 */
-    *ppHandle = MLibWrapperMalloc( sizeof ( MLibDynamicArray_t ) );
-
-    /* 割当結果判定 */
-    if ( *ppHandle == NULL ) {
-        /* 失敗 */
-
-        /* エラー要因設定 */
-        MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NOMEMORY );
-
-        return MLIB_RET_FAILURE;
-    }
-
     /* ハンドル初期化 */
-    MLibWrapperMemset( *ppHandle, 0, sizeof ( MLibDynamicArray_t ) );
-    ( *ppHandle )->chunkSize   = chunkSize;
-    ( *ppHandle )->entrySize   = entrySize;
-    ( *ppHandle )->entryMaxNum = entryMaxNum;
-    ( *ppHandle )->entryNum    = 0;
+    MLibWrapperMemset( pHandle, 0, sizeof ( MLibDynamicArray_t ) );
+    pHandle->chunkSize   = chunkSize;
+    pHandle->entrySize   = entrySize;
+    pHandle->entryMaxNum = entryMaxNum;
+    pHandle->entryNum    = 0;
 
     /* リンクリスト初期化 */
-    retMLib = MLibListInit( &( ( *ppHandle )->list ) );
+    retMLib = MLibListInit( &( pHandle->list ) );
 
     return retMLib;
 }
