@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLibUtil.h                                                */
-/*                                                                 2020/12/31 */
-/* Copyright (C) 2020 Mochi.                                                  */
+/*                                                                 2021/01/04 */
+/* Copyright (C) 2020-2021 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 #ifndef _MLIB_UTIL_H_
@@ -33,10 +33,13 @@
 #define MLIB_UTIL_MIN( _VALUE1, _VALUE2 ) \
     ( ( _VALUE1 ) < ( _VALUE2 ) ? ( _VALUE1 ) : ( _VALUE2 ) )
 
-/** 配列エントリ数マクロ */
+/** 配列エントリ数計算マクロ */
 #define MLIB_UTIL_NUMOF( _ARRAY ) \
     ( sizeof ( _ARRAY ) / sizeof ( _ARRAY[ 0 ] ) )
 
+/** アドレスサイズ加算マクロ */
+#define MLIB_UTIL_ADDR_ADD_SIZE( _PADDR, _SIZE ) \
+    ( ( void * ) ( ( size_t ) ( _PADDR ) + ( _SIZE ) ) )
 
 
 /******************************************************************************/
