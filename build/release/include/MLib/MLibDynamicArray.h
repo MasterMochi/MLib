@@ -54,8 +54,8 @@ extern MLibRet_t MLibDynamicArrayAlloc(
                      MLibErr_t          *pErr       );
 /* 動的配列削除 */
 extern MLibRet_t MLibDynamicArrayExit(
-                     MLibDynamicArray_t **ppHandle,
-                     MLibErr_t          *pErr       );
+                     MLibDynamicArray_t *pHandle,
+                     MLibErr_t          *pErr     );
 /* 動的配列エントリ全操作 */
 extern MLibRet_t MLibDynamicArrayForeach(
                      MLibDynamicArray_t          *pHandle,

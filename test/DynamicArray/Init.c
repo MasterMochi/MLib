@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* test/DynamicArray/Init.c                                                   */
-/*                                                                 2020/05/13 */
-/* Copyright (C) 2020 Mochi.                                                  */
+/*                                                                 2021/01/10 */
+/* Copyright (C) 2020-2021 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -76,15 +76,14 @@ bool InitFailure2( void )
 {
     MLibErr_t          errMLib;     /* エラー要因 */
     MLibRet_t          retMLib;     /* 戻り値     */
-    MLibDynamicArray_t *pHandle;    /* ハンドル   */
+    MLibDynamicArray_t handle;      /* ハンドル   */
 
     /* 初期化 */
     errMLib = MLIB_ERR_NONE;
     retMLib = MLIB_RET_FAILURE;
-    pHandle = NULL;
 
     /* 初期化 */
-    retMLib = MLibDynamicArrayInit( &pHandle, 0, 1, 1, &errMLib );
+    retMLib = MLibDynamicArrayInit( &handle, 0, 1, 1, &errMLib );
 
     /* 初期化結果判定 */
     if ( ( retMLib != MLIB_RET_FAILURE ) ||
@@ -116,15 +115,14 @@ bool InitFailure3( void )
 {
     MLibErr_t          errMLib;     /* エラー要因 */
     MLibRet_t          retMLib;     /* 戻り値     */
-    MLibDynamicArray_t *pHandle;    /* ハンドル   */
+    MLibDynamicArray_t handle;      /* ハンドル   */
 
     /* 初期化 */
     errMLib = MLIB_ERR_NONE;
     retMLib = MLIB_RET_FAILURE;
-    pHandle = NULL;
 
     /* 初期化 */
-    retMLib = MLibDynamicArrayInit( &pHandle, 1, 0, 1, &errMLib );
+    retMLib = MLibDynamicArrayInit( &handle, 1, 0, 1, &errMLib );
 
     /* 初期化結果判定 */
     if ( ( retMLib != MLIB_RET_FAILURE ) ||
@@ -156,15 +154,14 @@ bool InitFailure4( void )
 {
     MLibErr_t          errMLib;     /* エラー要因 */
     MLibRet_t          retMLib;     /* 戻り値     */
-    MLibDynamicArray_t *pHandle;    /* ハンドル   */
+    MLibDynamicArray_t handle;      /* ハンドル   */
 
     /* 初期化 */
     errMLib = MLIB_ERR_NONE;
     retMLib = MLIB_RET_FAILURE;
-    pHandle = NULL;
 
     /* 初期化 */
-    retMLib = MLibDynamicArrayInit( &pHandle, 1, 1, 0, &errMLib );
+    retMLib = MLibDynamicArrayInit( &handle, 1, 1, 0, &errMLib );
 
     /* 初期化結果判定 */
     if ( ( retMLib != MLIB_RET_FAILURE ) ||
@@ -196,19 +193,17 @@ bool InitSuccess1( void )
 {
     MLibErr_t          errMLib;     /* エラー要因 */
     MLibRet_t          retMLib;     /* 戻り値     */
-    MLibDynamicArray_t *pHandle;    /* ハンドル   */
+    MLibDynamicArray_t handle;      /* ハンドル   */
 
     /* 初期化 */
     errMLib = MLIB_ERR_NONE;
     retMLib = MLIB_RET_FAILURE;
-    pHandle = NULL;
 
     /* 初期化 */
-    retMLib = MLibDynamicArrayInit( &pHandle, 1, 1, 1, &errMLib );
+    retMLib = MLibDynamicArrayInit( &handle, 1, 1, 1, &errMLib );
 
     /* 初期化結果判定 */
-    if ( ( retMLib != MLIB_RET_SUCCESS ) ||
-         ( pHandle == NULL             )    ) {
+    if ( retMLib != MLIB_RET_SUCCESS ) {
         /* 非期待値 */
 
         /* NG表示 */
@@ -218,7 +213,7 @@ bool InitSuccess1( void )
     }
 
     /* 削除 */
-    MLibDynamicArrayExit( &pHandle, NULL );
+    MLibDynamicArrayExit( &handle, NULL );
 
     return true;
 }
@@ -238,14 +233,13 @@ bool InitSuccess1( void )
 bool InitSuccess2( void )
 {
     MLibRet_t          retMLib;     /* 戻り値     */
-    MLibDynamicArray_t *pHandle;    /* ハンドル   */
+    MLibDynamicArray_t handle;      /* ハンドル   */
 
     /* 初期化 */
     retMLib = MLIB_RET_FAILURE;
-    pHandle = NULL;
 
     /* 初期化 */
-    retMLib = MLibDynamicArrayInit( &pHandle, 1, 1, 1, NULL );
+    retMLib = MLibDynamicArrayInit( &handle, 1, 1, 1, NULL );
 
     /* 初期化結果判定 */
     if ( retMLib != MLIB_RET_SUCCESS ) {
@@ -258,7 +252,7 @@ bool InitSuccess2( void )
     }
 
     /* 削除 */
-    MLibDynamicArrayExit( &pHandle, NULL );
+    MLibDynamicArrayExit( &handle, NULL );
 
     return true;
 }

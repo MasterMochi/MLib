@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* test/DynamicArray/Alloc.c                                                  */
-/*                                                                 2020/05/13 */
-/* Copyright (C) 2020 Mochi.                                                  */
+/*                                                                 2021/01/10 */
+/* Copyright (C) 2020-2021 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -39,21 +39,19 @@ bool AllocSuccess1( void )
     uint_t             idx;         /* 配列インデックス */
     MLibErr_t          errMLib;     /* エラー要因       */
     MLibRet_t          retMLib;     /* 戻り値           */
-    MLibDynamicArray_t *pHandle;    /* ハンドル         */
+    MLibDynamicArray_t handle;      /* ハンドル         */
 
     /* 初期化 */
     pBuffer = NULL;
     idx     = 0;
     errMLib = MLIB_ERR_NONE;
     retMLib = MLIB_RET_FAILURE;
-    pHandle = NULL;
 
     /* 初期化 */
-    retMLib = MLibDynamicArrayInit( &pHandle, 256, 1, 512, &errMLib );
+    retMLib = MLibDynamicArrayInit( &handle, 256, 1, 512, &errMLib );
 
     /* 初期化結果判定 */
-    if ( ( retMLib != MLIB_RET_SUCCESS ) ||
-         ( pHandle == NULL             )    ) {
+    if ( retMLib != MLIB_RET_SUCCESS ) {
         /* 非期待値 */
 
         /* NG表示 */
@@ -63,7 +61,7 @@ bool AllocSuccess1( void )
     }
 
     /* 割り当て */
-    retMLib = MLibDynamicArrayAlloc( pHandle,
+    retMLib = MLibDynamicArrayAlloc( &handle,
                                      &idx,
                                      ( void ** ) &pBuffer,
                                      &errMLib              );
@@ -84,13 +82,13 @@ bool AllocSuccess1( void )
         );
 
         /* 削除 */
-        MLibDynamicArrayExit( &pHandle, NULL );
+        MLibDynamicArrayExit( &handle, NULL );
 
         return false;
     }
 
     /* 割り当て */
-    retMLib = MLibDynamicArrayAlloc( pHandle,
+    retMLib = MLibDynamicArrayAlloc( &handle,
                                      &idx,
                                      ( void ** ) &pBuffer,
                                      &errMLib              );
@@ -110,13 +108,13 @@ bool AllocSuccess1( void )
         );
 
         /* 削除 */
-        MLibDynamicArrayExit( &pHandle, NULL );
+        MLibDynamicArrayExit( &handle, NULL );
 
         return false;
     }
 
     /* 削除 */
-    MLibDynamicArrayExit( &pHandle, NULL );
+    MLibDynamicArrayExit( &handle, NULL );
 
     return true;
 }
