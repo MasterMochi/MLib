@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/DynamicArray/DynamicArrayExit.c                                        */
-/*                                                                 2020/12/20 */
-/* Copyright (C) 2019-2020 Mochi.                                             */
+/*                                                                 2021/01/10 */
+/* Copyright (C) 2019-2021 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -29,8 +29,8 @@
  * @brief       動的配列削除
  * @details     全てのチャンクとハンドルを解放し、動的配列を削除する。
  *
- * @param[out]  **ppHandle 動的配列ハンドル
- * @param[out]  *pErr      エラー要因
+ * @param[out]  *pHandle 動的配列ハンドル
+ * @param[out]  *pErr    エラー要因
  *                  - MLIB_ERR_NONE  エラー無し
  *                  - MLIB_ERR_PARAM パラメータ不正
  *
@@ -39,8 +39,8 @@
  * @retval      MLIB_RET_FAILURE 失敗
  */
 /******************************************************************************/
-MLibRet_t MLibDynamicArrayExit( MLibDynamicArray_t **ppHandle,
-                                MLibErr_t          *pErr       )
+MLibRet_t MLibDynamicArrayExit( MLibDynamicArray_t *pHandle,
+                                MLibErr_t          *pErr     )
 {
     Chunk_t *pChunk;    /* チャンク */
 
@@ -51,7 +51,7 @@ MLibRet_t MLibDynamicArrayExit( MLibDynamicArray_t **ppHandle,
     MLIB_SET_IFNOT_NULL( pErr, MLIB_ERR_NONE );
 
     /* パラメータチェック */
-    if ( ppHandle == NULL ) {
+    if ( pHandle == NULL ) {
         /* 不正 */
 
         /* エラー要因設定 */
@@ -63,7 +63,7 @@ MLibRet_t MLibDynamicArrayExit( MLibDynamicArray_t **ppHandle,
     /* チャンク毎に繰り返す */
     while ( true ) {
         /* チャンク削除 */
-        pChunk = ( Chunk_t * ) MLibListRemoveTail( &( ( *ppHandle )->list ) );
+        pChunk = ( Chunk_t * ) MLibListRemoveTail( &( pHandle->list ) );
 
         /* 削除結果判定 */
         if ( pChunk == NULL ) {
@@ -74,10 +74,6 @@ MLibRet_t MLibDynamicArrayExit( MLibDynamicArray_t **ppHandle,
         /* チャンク解放 */
         MLibWrapperFree( pChunk );
     }
-
-    /* ハンドル解放 */
-    MLibWrapperFree( *ppHandle );
-    *ppHandle = NULL;
 
     return MLIB_RET_SUCCESS;
 }
