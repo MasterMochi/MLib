@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLibTypes.h                                               */
-/*                                                                 2020/07/19 */
-/* Copyright (C) 2020 Mochi.                                                  */
+/*                                                                 2021/01/31 */
+/* Copyright (C) 2020-2021 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 #ifndef _MLIB_TYPES_H_
@@ -38,6 +38,7 @@ typedef int32_t MLibRet_t;
 #define MLIB_ERR_INDEX     ( 0x00000006 )   /**< インデックス無効 */
 #define MLIB_ERR_LIMITOVER ( 0x00000007 )   /**< 上限超過         */
 #define MLIB_ERR_FULL      ( 0x00000008 )   /**< バッファフル     */
+#define MLIB_ERR_ALLOCATED ( 0x00000009 )   /**< 割当済み         */
 
 /** エラー要因 */
 typedef uint32_t MLibErr_t;

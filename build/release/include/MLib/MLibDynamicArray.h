@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/include/MLib/MLibDynamicArray.h                                        */
-/*                                                                 2021/01/10 */
+/*                                                                 2021/01/31 */
 /* Copyright (C) 2017-2021 Mochi                                              */
 /*                                                                            */
 /******************************************************************************/
@@ -52,6 +52,12 @@ extern MLibRet_t MLibDynamicArrayAlloc(
                      uint_t             *pIdx,
                      void               **ppEntry,
                      MLibErr_t          *pErr       );
+/* 動的配列エントリ割当(インデックス指定) */
+extern MLibRet_t MLibDynamicArrayAllocSpec(
+                     MLibDynamicArray_t *pHandle,
+                     uint_t             idx,
+                     void               **ppEntry,
+                     MLibErr_t          *pErr      );
 /* 動的配列削除 */
 extern MLibRet_t MLibDynamicArrayExit(
                      MLibDynamicArray_t *pHandle,

@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/List/ListRemove.c                                                      */
-/*                                                                 2020/07/19 */
-/* Copyright (C) 2017-2020 Mochi.                                             */
+/*                                                                 2021/02/07 */
+/* Copyright (C) 2017-2021 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -126,6 +126,7 @@ MLibListNode_t *MLibListRemoveHead( MLibList_t *pList )
         pList->size--;
 
         /* 先頭ノード設定 */
+        pNode->pList = NULL;
         pNode->pNext = NULL;
         pNode->pPrev = NULL;
     }
@@ -196,6 +197,7 @@ MLibListNode_t *MLibListRemoveTail( MLibList_t *pList )
         pList->size--;
 
         /* 最後尾ノード設定 */
+        pNode->pList = NULL;
         pNode->pNext = NULL;
         pNode->pPrev = NULL;
     }
@@ -275,6 +277,7 @@ MLibRet_t ListRemove( MLibList_t     *pList,
     }
 
     /* 削除ノード設定 */
+    pNode->pList = NULL;
     pNode->pNext = NULL;
     pNode->pPrev = NULL;
 
