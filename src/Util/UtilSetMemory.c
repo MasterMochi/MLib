@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
 /* src/Util/UtilSetMemory.c                                                   */
-/*                                                                 2020/12/31 */
-/* Copyright (C) 2020 Mochi.                                                  */
+/*                                                                 2021/05/01 */
+/* Copyright (C) 2020-2021 Mochi.                                             */
 /*                                                                            */
 /******************************************************************************/
 /******************************************************************************/
@@ -101,13 +101,13 @@ void MLibUtilSetMemory32( void     *pAddr,
 
     /* 4byte毎に繰り返す */
     for ( offset = 0; offset < offset_max; offset++ ) {
-        *( ( ( uint16_t * ) pAddr ) + offset ) = value;
+        *( ( ( uint32_t * ) pAddr ) + offset ) = value;
     }
 
     /* 1byte毎に繰り返す */
     for ( offset *= 4; offset < size; offset++ ) {
         *( ( ( uint8_t * ) pAddr  ) + offset ) =
-        *( ( ( uint8_t * ) &value ) + ( offset % 3 ) );
+        *( ( ( uint8_t * ) &value ) + ( offset % 4 ) );
     }
 
     return;
